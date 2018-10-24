@@ -121,11 +121,14 @@ func checkParam(param Parameters) error {
 	if param.PopulationSize <= 2 {
 		return errors.New("PopulationSize should > 2")
 	}
+	if param.Genotype <= 1 {
+		return errors.New("Genotype should > 1")
+	}
 	if param.ChromosomeLength <= 0 {
 		return errors.New("ChromosomeLength should > 0")
 	}
 	if param.IterationsLimit <= 0 {
-		return errors.New("MaximumGeneration should > 0")
+		return errors.New("IterationsLimit should > 0")
 	}
 	return nil
 }
