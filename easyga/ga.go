@@ -56,7 +56,7 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 		// Mutation - perform mutation of population
 		for i := range nextPopulation.chromosomes {
 			if rand.Float64() < ga.Params.MutationProbability {
-				nextPopulation.chromosomes[i].Mutate(ga.Params.Genotype)
+				go nextPopulation.chromosomes[i].Mutate(ga.Params.Genotype)
 			}
 		}
 

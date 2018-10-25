@@ -13,9 +13,9 @@ func main() {
 		CrossoverProbability: .9,
 		MutationProbability:  .2,
 		PopulationSize:       8,
-		Genotype:             4,
-		ChromosomeLength:     20,
-		IterationsLimit:      20000,
+		Genotype:             2,
+		ChromosomeLength:     2000,
+		IterationsLimit:      2000000,
 	}
 
 	if err := ga.Init(parameters); err != nil {
