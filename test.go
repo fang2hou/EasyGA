@@ -10,12 +10,12 @@ func main() {
 	var ga easyga.GeneticAlgorithm
 
 	parameters := easyga.Parameters{
-		CrossoverProbability: .9,
-		MutationProbability:  .2,
-		PopulationSize:       8,
+		CrossoverProbability: 1,
+		MutationProbability:  .1,
+		PopulationSize:       4,
 		Genotype:             2,
-		ChromosomeLength:     2000,
-		IterationsLimit:      2000000,
+		ChromosomeLength:     10,
+		IterationsLimit:      100000,
 	}
 
 	if err := ga.Init(parameters); err != nil {
