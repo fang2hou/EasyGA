@@ -15,7 +15,6 @@ func (p *population) Init(length int, size int, genotype uint8) {
 	for i := 0; i < size; i++ {
 		var tempChromosome Chromosome
 		tempChromosome.Random(length, genotype)
-		tempChromosome.UpdateFitness()
 		p.chromosomes = append(p.chromosomes, tempChromosome)
 	}
 }

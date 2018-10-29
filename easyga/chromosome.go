@@ -28,15 +28,6 @@ func (c *Chromosome) Random(length int, genotype uint8) {
 	}
 }
 
-func (c *Chromosome) UpdateFitness() {
-	// TODO: Make Fitness function be customizable
-	c.Fitness = 0
-	for _, genotype := range c.Gene {
-		c.Fitness += float64(genotype)
-	}
-}
-
 func (c *Chromosome) Mutate(genotype uint8) {
 	c.Gene[c.GetRandomGeneIndex()] = getRandomGenotype(genotype)
-	c.UpdateFitness()
 }

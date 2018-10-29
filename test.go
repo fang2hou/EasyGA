@@ -13,8 +13,8 @@ func main() {
 		MutationProbability:  .1,
 		PopulationSize:       4,
 		Genotype:             2,
-		ChromosomeLength:     12,
-		IterationsLimit:      100000,
+		ChromosomeLength:     10,
+		IterationsLimit:      1000,
 	}
 
 	custom := easyga.CustomFunctions{}
@@ -25,6 +25,10 @@ func main() {
 
 	//custom.CrossOverFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
 	//	You can customize your crossover function here
+	//}
+	//
+	//custom.FitnessFunction = func(c *easyga.Chromosome) {
+	//	You can customize your fitness function here
 	//}
 
 	if err := ga.Init(parameters, custom); err != nil {
