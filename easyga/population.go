@@ -22,12 +22,12 @@ func (p *population) Init(length int, size int, genotype uint8) {
 
 func (p *population) FindBest() (bestIndex int, bestFitness float64) {
 	bestIndex = 0
-	bestFitness = p.chromosomes[0].fitness
+	bestFitness = p.chromosomes[0].Fitness
 
 	for i := range p.chromosomes {
-		if p.chromosomes[i].fitness > bestFitness {
+		if p.chromosomes[i].Fitness > bestFitness {
 			bestIndex = i
-			bestFitness = p.chromosomes[i].fitness
+			bestFitness = p.chromosomes[i].Fitness
 		}
 	}
 

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"./easyga"
+	"fmt"
 )
 
 func main() {
@@ -13,22 +13,21 @@ func main() {
 		MutationProbability:  .1,
 		PopulationSize:       4,
 		Genotype:             2,
-		ChromosomeLength:     10,
+		ChromosomeLength:     12,
 		IterationsLimit:      100000,
 	}
 
-	//ga.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
-	//	_, bestFitness := ga.Population.FindBest()
-	//	maybeBest := int(ga.Params.Genotype-1) * ga.Params.ChromosomeLength - 1
-	//
-	//	if int(bestFitness) >= maybeBest || ga.Iteration >= ga.Params.IterationsLimit {
-	//		return true
-	//	}
-	//
-	//	return false
+	custom := easyga.CustomFunctions{}
+
+	//custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
+	//	You can customize your check stop function here
 	//}
 
-	if err := ga.Init(parameters); err != nil {
+	//custom.CrossOverFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
+	//	You can customize your crossover function here
+	//}
+
+	if err := ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)
 		return
 	}
