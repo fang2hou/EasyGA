@@ -10,4 +10,9 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# macOS cache file
 .DS_Store
+
+# Goland project configuration
+.idea/*
