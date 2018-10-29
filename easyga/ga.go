@@ -17,6 +17,7 @@ type Parameters struct {
 type GeneticAlgorithm struct {
 	Params     Parameters
 	Iteration  int
+	CheckStopFunction func (ga *GeneticAlgorithm) bool
 	Population population
 }
 
@@ -99,8 +100,11 @@ func (ga *GeneticAlgorithm) selectParents() (parentsPair [][2]Chromosome) {
 	return parentsPair
 }
 
-// TODO: Customization
 func (ga *GeneticAlgorithm) checkStop() bool {
+	if ga.CheckStopFunction != nil {
+		return ga.CheckStopFunction(ga)
+	}
+
 	_, bestFitness := ga.Population.FindBest()
 	maybeBest := int(ga.Params.Genotype-1) * ga.Params.ChromosomeLength
 
