@@ -27,7 +27,3 @@ func (c *Chromosome) Random(length int, genotype uint8) {
 		c.Gene = append(c.Gene, getRandomGenotype(genotype))
 	}
 }
-
-func (c *Chromosome) Mutate(genotype uint8) {
-	c.Gene[c.GetRandomGeneIndex()] = getRandomGenotype(genotype)
-}

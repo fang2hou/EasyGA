@@ -3,12 +3,17 @@ package main
 import (
 	"./easyga"
 	"fmt"
+<<<<<<< HEAD
 	"math"
+=======
+>>>>>>> 7b0dce22fb499f47b4d99dd512010202e1b2272f
 	"math/rand"
 )
 
 func main() {
 	var ga easyga.GeneticAlgorithm
+
+	rand.Seed(42)
 
 	parameters := easyga.Parameters{
 		CrossoverProbability: 1,
@@ -21,10 +26,11 @@ func main() {
 
 	custom := easyga.CustomFunctions{}
 
-	//custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
-	//	You can customize your check stop function here
+	//custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
+	//	You can customize your fitness function here
 	//}
 
+<<<<<<< HEAD
 	custom.CrossOverFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
 		//Tsp
 		if ga.Custom.CrossOverFunction != nil {
@@ -88,6 +94,23 @@ func main() {
 			}
 		}
 	}
+=======
+	//custom.MutateFunction = func(c *easyga.Chromosome) {
+	//	You can customize your crossover function here
+	//}
+
+	//custom.FitnessFunction = func(c *easyga.Chromosome) {
+	//	You can customize your fitness function here
+	//}
+>>>>>>> 7b0dce22fb499f47b4d99dd512010202e1b2272f
+
+	//custom.CrossOverFunction = func(c *easyga.Chromosome) {
+	//	You can customize your fitness function here
+	//}
+
+	//custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
+	//	You can customize your check stop function here
+	//}
 
 	if err := ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)

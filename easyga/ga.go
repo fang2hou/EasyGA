@@ -3,7 +3,6 @@ package easyga
 import (
 	"errors"
 	"math/rand"
-	"sync"
 )
 
 type Parameters struct {
@@ -16,9 +15,11 @@ type Parameters struct {
 }
 
 type CustomFunctions struct {
-	FitnessFunction   func(c *Chromosome)
-	CrossOverFunction func(parent1, parent2 *Chromosome) (child1, child2 *Chromosome)
-	CheckStopFunction func(ga *GeneticAlgorithm) bool
+	ChromosomeInitFunction func(c *Chromosome)
+	MutateFunction         func(c *Chromosome)
+	FitnessFunction        func(c *Chromosome)
+	CrossOverFunction      func(parent1, parent2 *Chromosome) (child1, child2 *Chromosome)
+	CheckStopFunction      func(ga *GeneticAlgorithm) bool
 }
 
 type GeneticAlgorithm struct {
@@ -28,9 +29,6 @@ type GeneticAlgorithm struct {
 	Population population
 }
 
-var mutationWait sync.WaitGroup
-var fitnessWait sync.WaitGroup
-
 func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) error {
 	if err := checkParam(parameters); err != nil {
 		return err
@@ -38,12 +36,12 @@ func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) 
 
 	ga.Params = parameters
 	ga.Custom = custom
-	ga.Population.Init(ga.Params.ChromosomeLength, ga.Params.PopulationSize, ga.Params.Genotype)
+	ga.Population.Init(ga.Params.ChromosomeLength, ga.Params.PopulationSize, ga.Params.Genotype, ga.Custom.ChromosomeInitFunction)
 	ga.Iteration = 0
 
 	// Init fitness
-	for i := range ga.Population.chromosomes {
-		ga.fitness(&ga.Population.chromosomes[i])
+	for i := range ga.Population.Chromosomes {
+		ga.fitness(&ga.Population.Chromosomes[i])
 	}
 
 	return nil
@@ -68,19 +66,19 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 				child1, child2 = &parents[0], &parents[1]
 			}
 
-			nextPopulation.chromosomes = append(nextPopulation.chromosomes, *child1, *child2)
+			nextPopulation.Chromosomes = append(nextPopulation.Chromosomes, *child1, *child2)
 		}
 
 		// Mutation - perform mutation of population
-		for i := range nextPopulation.chromosomes {
+		for i := range nextPopulation.Chromosomes {
 			if rand.Float64() < ga.Params.MutationProbability {
-				nextPopulation.chromosomes[i].Mutate(ga.Params.Genotype)
+				ga.mutate(&nextPopulation.Chromosomes[i])
 			}
 		}
 
 		// Update fitness
-		for i := range nextPopulation.chromosomes {
-			ga.fitness(&nextPopulation.chromosomes[i])
+		for i := range nextPopulation.Chromosomes {
+			ga.fitness(&nextPopulation.Chromosomes[i])
 		}
 
 		ga.Population = nextPopulation
@@ -89,22 +87,25 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 
 	bestIndex, bestFitness := ga.Population.FindBest()
 
-	best = ga.Population.chromosomes[bestIndex]
 	fitness = bestFitness
 	iteration = ga.Iteration
+
+	// TODO: DEBUG ONLY
+	best = ga.Population.Chromosomes[bestIndex]
+	println(best)
 
 	return
 }
 
 func (ga *GeneticAlgorithm) tournament() (newPopulation population) {
 	for i := 0; i < ga.Params.PopulationSize; i++ {
-		chromosome1 := ga.Population.chromosomes[getRandomChromosomeIndex(&ga.Population)]
-		chromosome2 := ga.Population.chromosomes[getRandomChromosomeIndex(&ga.Population)]
+		chromosome1 := ga.Population.Chromosomes[getRandomChromosomeIndex(&ga.Population)]
+		chromosome2 := ga.Population.Chromosomes[getRandomChromosomeIndex(&ga.Population)]
 
 		if chromosome1.Fitness > chromosome2.Fitness {
-			newPopulation.chromosomes = append(newPopulation.chromosomes, chromosome1)
+			newPopulation.Chromosomes = append(newPopulation.Chromosomes, chromosome1)
 		} else {
-			newPopulation.chromosomes = append(newPopulation.chromosomes, chromosome2)
+			newPopulation.Chromosomes = append(newPopulation.Chromosomes, chromosome2)
 		}
 	}
 
@@ -115,7 +116,7 @@ func (ga *GeneticAlgorithm) selectParents() (parentsPair [][2]Chromosome) {
 	selectedPopulation := ga.tournament()
 
 	for i := 0; i < ga.Params.PopulationSize/2; i++ {
-		parent1, parent2 := selectedPopulation.chromosomes[2*i], selectedPopulation.chromosomes[2*i+1]
+		parent1, parent2 := selectedPopulation.Chromosomes[2*i], selectedPopulation.Chromosomes[2*i+1]
 		parentsPair = append(parentsPair, [2]Chromosome{parent1, parent2})
 	}
 
@@ -157,6 +158,17 @@ func (ga *GeneticAlgorithm) crossover(parent1, parent2 *Chromosome) (child1, chi
 	return child1, child2
 }
 
+func (ga *GeneticAlgorithm) mutate(c *Chromosome) {
+	if ga.Custom.MutateFunction != nil {
+		ga.Custom.MutateFunction(c)
+		return
+	}
+
+	// Default
+	// - Replace a genotype with a new one generated randomly.
+	c.Gene[c.GetRandomGeneIndex()] = getRandomGenotype(ga.Params.Genotype)
+}
+
 func (ga *GeneticAlgorithm) checkStop() bool {
 	if ga.Custom.CheckStopFunction != nil {
 		return ga.Custom.CheckStopFunction(ga)
@@ -176,22 +188,22 @@ func (ga *GeneticAlgorithm) checkStop() bool {
 
 func checkParam(param Parameters) error {
 	if param.CrossoverProbability < 0 || param.CrossoverProbability > 1 {
-		return errors.New("CrossoverProbability should be in [0, 1]")
+		return errors.New("error: CrossoverProbability should be in [0, 1]")
 	}
 	if param.MutationProbability < 0 || param.MutationProbability > 1 {
-		return errors.New("MutationProbability should be in [0, 1]")
+		return errors.New("error: MutationProbability should be in [0, 1]")
 	}
 	if param.PopulationSize <= 2 {
-		return errors.New("PopulationSize should > 2")
+		return errors.New("error: PopulationSize should > 2")
 	}
 	if param.Genotype <= 1 {
-		return errors.New("Genotype should > 1")
+		return errors.New("error: Genotype should > 1")
 	}
 	if param.ChromosomeLength <= 0 {
-		return errors.New("ChromosomeLength should > 0")
+		return errors.New("error: ChromosomeLength should > 0")
 	}
 	if param.IterationsLimit <= 0 {
-		return errors.New("IterationsLimit should > 0")
+		return errors.New("error: IterationsLimit should > 0")
 	}
 	return nil
 }
