@@ -12,14 +12,18 @@ func main() {
 
 	rand.Seed(42)
 
-	cityLocation := [8][2]float64{ {-1,1}, {0,1},{1,1},{-1,0},{1,0},{-1,-1},{0,-1},{1,-1}}[:]
+	mapCityLocation := map[int][2]float64{
+		0: {-1, 1}, 1: {0,1}, 2: {1,1},
+		7: {-1,0}, 3: {1,0},
+		6: {-1,-1}, 5: {0,-1}, 4: {1,-1},
+	}
 
 	parameters := easyga.Parameters{
 		CrossoverProbability: 1,
 		MutationProbability:  .1,
 		PopulationSize:       4,
 		Genotype:             2,
-		ChromosomeLength:     10,
+		ChromosomeLength:     8,
 		IterationsLimit:      1000,
 	}
 
@@ -54,31 +58,28 @@ func main() {
 		// Initialize
 		c.Fitness = 0
 
-		// Cache the number of cities
-		numberOfCities := len(cityLocation)
-
 		// Be a travelling salesman :(
-		for i, currentCityIndex := 0, 0; i < numberOfCities; i++{
+		for cityIndex := range c.Gene{
 			// Get next city index from gene
-			nextCityIndex := int(c.Gene[currentCityIndex])
+			var nextCityIndex int
+			if cityIndex != c.Length() - 1 {
+				nextCityIndex = int(c.Gene[cityIndex+1])
+			} else {
+				nextCityIndex = 0
+			}
 
 			// Calculate distance using pythagorean theorem
-			distanceX := cityLocation[nextCityIndex][0] - cityLocation[currentCityIndex][0]
-			distanceY := cityLocation[nextCityIndex][1] - cityLocation[currentCityIndex][1]
+			distanceX := mapCityLocation[nextCityIndex][0] - mapCityLocation[cityIndex][0]
+			distanceY := mapCityLocation[nextCityIndex][1] - mapCityLocation[cityIndex][1]
 			distance := math.Sqrt(distanceX * distanceX + distanceY * distanceY)
 
 			// Update fitness and currentCityIndex
 			c.Fitness += distance
-			currentCityIndex = nextCityIndex
+			cityIndex = nextCityIndex
 		}
 	}
 
 	custom.CrossOverFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
-		//Tsp
-		if ga.Custom.CrossOverFunction != nil {
-			return ga.Custom.CrossOverFunction(parent1, parent2)
-		}
-
 		// Default
 		// - Single point crossover
 		length := len(parent1.Gene)
@@ -134,14 +135,20 @@ func main() {
 		return false
 	}
 
+
+	testChromosome := easyga.Chromosome{Gene:[]byte{0,2,1,3,4,5,6,7}[:], Fitness:0 }
+	custom.FitnessFunction(&testChromosome)
+	fmt.Println(testChromosome)
+	return
+
 	if err := ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	best, bestFit, iteration := ga.Run()
-
-	fmt.Println("Best gene is", best)
-	fmt.Println("Best fitness is", bestFit)
-	fmt.Println("Find it in", iteration, "generation.")
+	//best, bestFit, iteration := ga.Run()
+	//
+	//fmt.Println("Best gene is", best)
+	//fmt.Println("Best fitness is", bestFit)
+	//fmt.Println("Find it in", iteration, "generation.")
 }
