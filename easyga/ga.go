@@ -89,8 +89,8 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 
 	fitness = bestFitness
 	iteration = ga.Iteration
-
-	// TODO: DEBUG ONLY
+	println(bestIndex)
+	 //TODO: DEBUG ONLY
 	best = ga.Population.Chromosomes[bestIndex]
 	println(best)
 

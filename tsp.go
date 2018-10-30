@@ -71,43 +71,63 @@ func main() {
 		}
 	}
 
-	//custom.CrossOverFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
-	//	//Tsp
-	//	if ga.Custom.CrossOverFunction != nil {
-	//		return ga.Custom.CrossOverFunction(parent1, parent2)
-	//	}
-	//
-	//	// Default
-	//	// - Single point crossover
-	//	length := len(parent1.Gene)
-	//	position := parent1.GetRandomGeneIndex()
-	//
-	//	child1 = &easyga.Chromosome{Gene: make([]uint8, length)}
-	//	child2 = &easyga.Chromosome{Gene: make([]uint8, length)}
-	//	separatePoint1 := length / 3 + 1
-	//	separatePoint2 := separatePoint1 * 2
-	//	child2Center := parent1.Gene[separatePoint1:separatePoint2]
-	//	child1Center := parent2.Gene[separatePoint1:separatePoint2]
-	//
-	//	for i := 0;i < length; i++{
-	//		isEqual := false
-	//		for j := range child2Center{
-	//			if parent1.Gene[i] == child2Center[j] {
-	//				isEqual = true
-	//				break
-	//			}
-	//		}
-	//		if !isEqual {
-	//			child2.Gene[i] = parent1.Gene[i]
-	//		}
-	//	}
-	//
-	//	tempchild2 := make([]byte, separatePoint2-separatePoint1+1)
-	//	copy(tempchild2,child2.Gene[separatePoint1:separatePoint2])
-	//	child2.Gene = append(child2.Gene[0:separatePoint1],child2Center...,tempchild2[:]...)
-	//
-	//	return child1, child2
-	//}
+	custom.CrossOverFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
+		//Tsp
+		if ga.Custom.CrossOverFunction != nil {
+			return ga.Custom.CrossOverFunction(parent1, parent2)
+		}
+
+		// Default
+		// - Single point crossover
+		length := len(parent1.Gene)
+		position := parent1.GetRandomGeneIndex()
+
+		child1 = &easyga.Chromosome{Gene: make([]uint8, length)}
+		child2 = &easyga.Chromosome{Gene: make([]uint8, length)}
+		separatePoint1 := length / 3 + 1
+		separatePoint2 := separatePoint1 * 2
+		child2Center := parent1.Gene[separatePoint1:separatePoint2]
+		child1Center := parent2.Gene[separatePoint1:separatePoint2]
+
+		for i := 0;i < length; i++{
+			isEqual := false
+			for j := range child2Center{
+				if parent1.Gene[i] == child2Center[j] {
+					isEqual = true
+					break
+				}
+			}
+			if !isEqual {
+				child2.Gene[i] = parent1.Gene[i]
+			}
+		}
+
+		tempchild2 := make([]byte, separatePoint2-separatePoint1+1)
+		copy(tempchild2,child2.Gene[separatePoint1:separatePoint2])
+		child2.Gene = append(child2.Gene[0:separatePoint1],child2Center...)
+		child2.Gene = append(child2.Gene[:],tempchild2[:]...)
+
+		for i := 0;i < length; i++{
+			isEqual := false
+			for j := range child2Center{
+				if parent2.Gene[i] == child1Center[j] {
+					isEqual = true
+					break
+				}
+			}
+			if !isEqual {
+				child1.Gene[i] = parent2.Gene[i]
+			}
+		}
+
+		tempchild1 := make([]byte, separatePoint2-separatePoint1+1)
+		copy(tempchild1,child1.Gene[separatePoint1:separatePoint2])
+		child1.Gene = append(child1.Gene[0:separatePoint1],child1Center...)
+		child1.Gene = append(child1.Gene[:],tempchild1[:]...)
+
+
+		return child1, child2
+	}
 
 	//custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
 	//	You can customize your check stop function here
