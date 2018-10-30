@@ -40,8 +40,8 @@ func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) 
 	ga.Iteration = 0
 
 	// Init fitness
-	for i := range ga.Population.chromosomes {
-		ga.fitness(&ga.Population.chromosomes[i])
+	for i := range ga.Population.Chromosomes {
+		ga.fitness(&ga.Population.Chromosomes[i])
 	}
 
 	return nil
@@ -66,19 +66,19 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 				child1, child2 = &parents[0], &parents[1]
 			}
 
-			nextPopulation.chromosomes = append(nextPopulation.chromosomes, *child1, *child2)
+			nextPopulation.Chromosomes = append(nextPopulation.Chromosomes, *child1, *child2)
 		}
 
 		// Mutation - perform mutation of population
-		for i := range nextPopulation.chromosomes {
+		for i := range nextPopulation.Chromosomes {
 			if rand.Float64() < ga.Params.MutationProbability {
-				ga.mutate(&nextPopulation.chromosomes[i])
+				ga.mutate(&nextPopulation.Chromosomes[i])
 			}
 		}
 
 		// Update fitness
-		for i := range nextPopulation.chromosomes {
-			ga.fitness(&nextPopulation.chromosomes[i])
+		for i := range nextPopulation.Chromosomes {
+			ga.fitness(&nextPopulation.Chromosomes[i])
 		}
 
 		ga.Population = nextPopulation
@@ -87,22 +87,25 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 
 	bestIndex, bestFitness := ga.Population.FindBest()
 
-	best = ga.Population.chromosomes[bestIndex]
 	fitness = bestFitness
 	iteration = ga.Iteration
+
+	// TODO: DEBUG ONLY
+	best = ga.Population.Chromosomes[bestIndex]
+	println(best)
 
 	return
 }
 
 func (ga *GeneticAlgorithm) tournament() (newPopulation population) {
 	for i := 0; i < ga.Params.PopulationSize; i++ {
-		chromosome1 := ga.Population.chromosomes[getRandomChromosomeIndex(&ga.Population)]
-		chromosome2 := ga.Population.chromosomes[getRandomChromosomeIndex(&ga.Population)]
+		chromosome1 := ga.Population.Chromosomes[getRandomChromosomeIndex(&ga.Population)]
+		chromosome2 := ga.Population.Chromosomes[getRandomChromosomeIndex(&ga.Population)]
 
 		if chromosome1.Fitness > chromosome2.Fitness {
-			newPopulation.chromosomes = append(newPopulation.chromosomes, chromosome1)
+			newPopulation.Chromosomes = append(newPopulation.Chromosomes, chromosome1)
 		} else {
-			newPopulation.chromosomes = append(newPopulation.chromosomes, chromosome2)
+			newPopulation.Chromosomes = append(newPopulation.Chromosomes, chromosome2)
 		}
 	}
 
@@ -113,7 +116,7 @@ func (ga *GeneticAlgorithm) selectParents() (parentsPair [][2]Chromosome) {
 	selectedPopulation := ga.tournament()
 
 	for i := 0; i < ga.Params.PopulationSize/2; i++ {
-		parent1, parent2 := selectedPopulation.chromosomes[2*i], selectedPopulation.chromosomes[2*i+1]
+		parent1, parent2 := selectedPopulation.Chromosomes[2*i], selectedPopulation.Chromosomes[2*i+1]
 		parentsPair = append(parentsPair, [2]Chromosome{parent1, parent2})
 	}
 
