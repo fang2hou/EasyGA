@@ -13,9 +13,9 @@ func main() {
 	rand.Seed(42)
 
 	mapCityLocation := map[int][2]float64{
-		0: {-1, 1}, 1: {0,1}, 2: {1,1},
-		7: {-1,0}, 3: {1,0},
-		6: {-1,-1}, 5: {0,-1}, 4: {1,-1},
+		0: {-1, 1}, 1: {0, 1}, 2: {1, 1},
+		7: {-1, 0}, 3: {1, 0},
+		6: {-1, -1}, 5: {0, -1}, 4: {1, -1},
 	}
 
 	parameters := easyga.Parameters{
@@ -59,19 +59,14 @@ func main() {
 		c.Fitness = 0
 
 		// Be a travelling salesman :(
-		for cityIndex := range c.Gene{
+		for geneIndex := range c.Gene {
 			// Get next city index from gene
-			var nextCityIndex int
-			if cityIndex != c.Length() - 1 {
-				nextCityIndex = int(c.Gene[cityIndex+1])
-			} else {
-				nextCityIndex = 0
-			}
-
+			cityIndex := int(c.Gene[geneIndex])
+			nextCityIndex := int(c.Gene[(geneIndex + 1) % 8])
 			// Calculate distance using pythagorean theorem
 			distanceX := mapCityLocation[nextCityIndex][0] - mapCityLocation[cityIndex][0]
 			distanceY := mapCityLocation[nextCityIndex][1] - mapCityLocation[cityIndex][1]
-			distance := math.Sqrt(distanceX * distanceX + distanceY * distanceY)
+			distance := math.Sqrt(distanceX*distanceX + distanceY*distanceY)
 
 			// Update fitness and currentCityIndex
 			c.Fitness += distance
@@ -79,21 +74,21 @@ func main() {
 		}
 	}
 
-	custom.CrossOverFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
+	custom.CrossOverFunction = func(parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
 		// Default
 		// - Single point crossover
 		length := len(parent1.Gene)
 
 		child1 = &easyga.Chromosome{Gene: make([]uint8, length)}
 		child2 = &easyga.Chromosome{Gene: make([]uint8, length)}
-		separatePoint1 := length / 3 + 1
+		separatePoint1 := length/3 + 1
 		separatePoint2 := separatePoint1 * 2
 		child2Center := parent1.Gene[separatePoint1:separatePoint2]
 		child1Center := parent2.Gene[separatePoint1:separatePoint2]
 
-		for i := 0;i < length; i++{
+		for i := 0; i < length; i++ {
 			isEqual := false
-			for j := range child2Center{
+			for j := range child2Center {
 				if parent1.Gene[i] == child2Center[j] {
 					isEqual = true
 					break
@@ -105,13 +100,13 @@ func main() {
 		}
 
 		tempchild2 := make([]byte, separatePoint2-separatePoint1+1)
-		copy(tempchild2,child2.Gene[separatePoint1:separatePoint2])
-		child2.Gene = append(child2.Gene[0:separatePoint1],child2Center...)
-		child2.Gene = append(child2.Gene[:],tempchild2[:]...)
+		copy(tempchild2, child2.Gene[separatePoint1:separatePoint2])
+		child2.Gene = append(child2.Gene[0:separatePoint1], child2Center...)
+		child2.Gene = append(child2.Gene[:], tempchild2[:]...)
 
-		for i := 0;i < length; i++{
+		for i := 0; i < length; i++ {
 			isEqual := false
-			for j := range child2Center{
+			for j := range child2Center {
 				if parent2.Gene[i] == child1Center[j] {
 					isEqual = true
 					break
@@ -123,20 +118,18 @@ func main() {
 		}
 
 		tempchild1 := make([]byte, separatePoint2-separatePoint1+1)
-		copy(tempchild1,child1.Gene[separatePoint1:separatePoint2])
-		child1.Gene = append(child1.Gene[0:separatePoint1],child1Center...)
-		child1.Gene = append(child1.Gene[:],tempchild1[:]...)
-
+		copy(tempchild1, child1.Gene[separatePoint1:separatePoint2])
+		child1.Gene = append(child1.Gene[0:separatePoint1], child1Center...)
+		child1.Gene = append(child1.Gene[:], tempchild1[:]...)
 
 		return child1, child2
 	}
 
-	custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
+	custom.CheckStopFunction = func(ga *easyga.GeneticAlgorithm) bool {
 		return false
 	}
 
-
-	testChromosome := easyga.Chromosome{Gene:[]byte{0,2,1,3,4,5,6,7}[:], Fitness:0 }
+	testChromosome := easyga.Chromosome{Gene: []byte{0, 1, 2, 3, 4, 5, 6, 7}[:], Fitness: 0}
 	custom.FitnessFunction(&testChromosome)
 	fmt.Println(testChromosome)
 	return
