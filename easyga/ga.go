@@ -2,6 +2,7 @@ package easyga
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 )
 
@@ -28,6 +29,7 @@ type GeneticAlgorithm struct {
 	Custom     CustomFunctions
 	Population population
 }
+
 
 func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) error {
 	if err := checkParam(parameters); err != nil {
@@ -86,13 +88,14 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 	}
 
 	bestIndex, bestFitness := ga.Population.FindBest()
-
 	fitness = bestFitness
 	iteration = ga.Iteration
-	println(bestIndex)
-	 //TODO: DEBUG ONLY
+
+
+	//TODO: DEBUG ONLY
+	fmt.Println("Best index:", bestIndex)
 	best = ga.Population.Chromosomes[bestIndex]
-	println(best)
+	fmt.Println(best)
 
 	return
 }

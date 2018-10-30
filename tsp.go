@@ -12,6 +12,8 @@ func main() {
 
 	rand.Seed(42)
 
+	cityLocation := [8][2]float64{ {-1,1}, {0,1},{1,1},{-1,0},{1,0},{-1,-1},{0,-1},{1,-1}}[:]
+
 	parameters := easyga.Parameters{
 		CrossoverProbability: 1,
 		MutationProbability:  .1,
@@ -24,10 +26,13 @@ func main() {
 	custom := easyga.CustomFunctions{}
 
 	custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
+		// Initialize
 		c.Gene = make([]byte, 0)
 
+		// Get a array contains the genes which tsp need
 		tspChromosome := rand.Perm(parameters.ChromosomeLength)
 
+		// Append each gene to chromosome
 		for i := range tspChromosome {
 			c.Gene = append(c.Gene, byte(tspChromosome[i]))
 		}
@@ -46,28 +51,25 @@ func main() {
 	}
 
 	custom.FitnessFunction = func(c *easyga.Chromosome) {
-		//Tsp
+		// Initialize
 		c.Fitness = 0
-		for _, genotype := range c.Gene {
-			c.Fitness += float64(genotype)
-			const dimension int = 2
-			const placeNumber int = 2
-			location := [placeNumber][dimension]float64{}
 
-			for i := 0;i < placeNumber; i++{
-				for j := 0 ; j < dimension ; j++{
-					location[i][j] = float64(rand.Int()% 10)
-				}
-			}
+		// Cache the number of cities
+		numberOfCities := len(cityLocation)
 
+		// Be a travelling salesman :(
+		for i, currentCityIndex := 0, 0; i < numberOfCities; i++{
+			// Get next city index from gene
+			nextCityIndex := int(c.Gene[currentCityIndex])
 
-			for i := 0; i < placeNumber- 1; i++ {
-				genotype := c.Gene[i]
-				xDistance := location[genotype][0] - location[genotype+1][0]
-				yDistance := location[genotype][1] - location[genotype+1][1]
-				distance := math.Sqrt(xDistance * xDistance + yDistance * yDistance)
-				c.Fitness += distance
-			}
+			// Calculate distance using pythagorean theorem
+			distanceX := cityLocation[nextCityIndex][0] - cityLocation[currentCityIndex][0]
+			distanceY := cityLocation[nextCityIndex][1] - cityLocation[currentCityIndex][1]
+			distance := math.Sqrt(distanceX * distanceX + distanceY * distanceY)
+
+			// Update fitness and currentCityIndex
+			c.Fitness += distance
+			currentCityIndex = nextCityIndex
 		}
 	}
 
@@ -80,7 +82,6 @@ func main() {
 		// Default
 		// - Single point crossover
 		length := len(parent1.Gene)
-		position := parent1.GetRandomGeneIndex()
 
 		child1 = &easyga.Chromosome{Gene: make([]uint8, length)}
 		child2 = &easyga.Chromosome{Gene: make([]uint8, length)}
@@ -129,9 +130,9 @@ func main() {
 		return child1, child2
 	}
 
-	//custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
-	//	You can customize your check stop function here
-	//}
+	custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
+		return false
+	}
 
 	if err := ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)
