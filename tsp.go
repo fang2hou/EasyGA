@@ -32,9 +32,17 @@ func main() {
 		}
 	}
 
-	//custom.MutateFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
-	//	You can customize your crossover function here
-	//}
+	custom.MutateFunction = func(c *easyga.Chromosome) {
+		// Get two different index of chromosome
+		index1 := c.GetRandomGeneIndex()
+		index2 := c.GetRandomGeneIndex()
+		for index1 == index2 {
+			index2 = c.GetRandomGeneIndex()
+		}
+
+		// Switch value
+		c.Gene[index1], c.Gene[index2] = c.Gene[index2], c.Gene[index1]
+	}
 
 	//custom.FitnessFunction = func(c *easyga.Chromosome) {
 	//	You can customize your fitness function here

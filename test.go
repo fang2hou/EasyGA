@@ -26,7 +26,7 @@ func main() {
 	//	You can customize your fitness function here
 	//}
 
-	//custom.MutateFunction = func (parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
+	//custom.MutateFunction = func(c *easyga.Chromosome) {
 	//	You can customize your crossover function here
 	//}
 
