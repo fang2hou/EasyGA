@@ -3,7 +3,6 @@ package easyga
 import (
 	"errors"
 	"math/rand"
-	"sync"
 )
 
 type Parameters struct {
@@ -16,9 +15,11 @@ type Parameters struct {
 }
 
 type CustomFunctions struct {
-	FitnessFunction   func(c *Chromosome)
-	CrossOverFunction func(parent1, parent2 *Chromosome) (child1, child2 *Chromosome)
-	CheckStopFunction func(ga *GeneticAlgorithm) bool
+	ChromosomeInitFunction func(c *Chromosome)
+	MutateFunction         func(c *Chromosome)
+	FitnessFunction        func(c *Chromosome)
+	CrossOverFunction      func(parent1, parent2 *Chromosome) (child1, child2 *Chromosome)
+	CheckStopFunction      func(ga *GeneticAlgorithm) bool
 }
 
 type GeneticAlgorithm struct {
@@ -28,9 +29,6 @@ type GeneticAlgorithm struct {
 	Population population
 }
 
-var mutationWait sync.WaitGroup
-var fitnessWait sync.WaitGroup
-
 func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) error {
 	if err := checkParam(parameters); err != nil {
 		return err
@@ -38,7 +36,7 @@ func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) 
 
 	ga.Params = parameters
 	ga.Custom = custom
-	ga.Population.Init(ga.Params.ChromosomeLength, ga.Params.PopulationSize, ga.Params.Genotype)
+	ga.Population.Init(ga.Params.ChromosomeLength, ga.Params.PopulationSize, ga.Params.Genotype, ga.Custom.ChromosomeInitFunction)
 	ga.Iteration = 0
 
 	// Init fitness
@@ -74,7 +72,7 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 		// Mutation - perform mutation of population
 		for i := range nextPopulation.chromosomes {
 			if rand.Float64() < ga.Params.MutationProbability {
-				nextPopulation.chromosomes[i].Mutate(ga.Params.Genotype)
+				ga.mutate(&nextPopulation.chromosomes[i])
 			}
 		}
 
@@ -157,6 +155,17 @@ func (ga *GeneticAlgorithm) crossover(parent1, parent2 *Chromosome) (child1, chi
 	return child1, child2
 }
 
+func (ga *GeneticAlgorithm) mutate(c *Chromosome) {
+	if ga.Custom.MutateFunction != nil {
+		ga.Custom.MutateFunction(c)
+		return
+	}
+
+	// Default
+	// - Replace a genotype with a new one generated randomly.
+	c.Gene[c.GetRandomGeneIndex()] = getRandomGenotype(ga.Params.Genotype)
+}
+
 func (ga *GeneticAlgorithm) checkStop() bool {
 	if ga.Custom.CheckStopFunction != nil {
 		return ga.Custom.CheckStopFunction(ga)
@@ -176,22 +185,22 @@ func (ga *GeneticAlgorithm) checkStop() bool {
 
 func checkParam(param Parameters) error {
 	if param.CrossoverProbability < 0 || param.CrossoverProbability > 1 {
-		return errors.New("CrossoverProbability should be in [0, 1]")
+		return errors.New("error: CrossoverProbability should be in [0, 1]")
 	}
 	if param.MutationProbability < 0 || param.MutationProbability > 1 {
-		return errors.New("MutationProbability should be in [0, 1]")
+		return errors.New("error: MutationProbability should be in [0, 1]")
 	}
 	if param.PopulationSize <= 2 {
-		return errors.New("PopulationSize should > 2")
+		return errors.New("error: PopulationSize should > 2")
 	}
 	if param.Genotype <= 1 {
-		return errors.New("Genotype should > 1")
+		return errors.New("error: Genotype should > 1")
 	}
 	if param.ChromosomeLength <= 0 {
-		return errors.New("ChromosomeLength should > 0")
+		return errors.New("error: ChromosomeLength should > 0")
 	}
 	if param.IterationsLimit <= 0 {
-		return errors.New("IterationsLimit should > 0")
+		return errors.New("error: IterationsLimit should > 0")
 	}
 	return nil
 }
