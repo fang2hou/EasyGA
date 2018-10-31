@@ -19,12 +19,12 @@ func main() {
 	}
 
 	parameters := easyga.Parameters{
-		CrossoverProbability: 1,
+		CrossoverProbability: .7,
 		MutationProbability:  .1,
-		PopulationSize:       4,
+		PopulationSize:       10,
 		Genotype:             2,
 		ChromosomeLength:     8,
-		IterationsLimit:      1000,
+		IterationsLimit:      100000,
 	}
 
 	custom := easyga.CustomFunctions{}
@@ -32,10 +32,8 @@ func main() {
 	custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
 		// Initialize
 		c.Gene = make([]byte, 0)
-
 		// Get a array contains the genes which tsp need
 		tspChromosome := rand.Perm(parameters.ChromosomeLength)
-
 		// Append each gene to chromosome
 		for i := range tspChromosome {
 			c.Gene = append(c.Gene, byte(tspChromosome[i]))
@@ -49,7 +47,6 @@ func main() {
 		for index1 == index2 {
 			index2 = c.GetRandomGeneIndex()
 		}
-
 		// Switch value
 		c.Gene[index1], c.Gene[index2] = c.Gene[index2], c.Gene[index1]
 	}
@@ -62,86 +59,89 @@ func main() {
 		for geneIndex := range c.Gene {
 			// Get next city index from gene
 			cityIndex := int(c.Gene[geneIndex])
-			nextCityIndex := int(c.Gene[(geneIndex + 1) % 8])
+			nextCityIndex := int(c.Gene[(geneIndex + 1) % len(c.Gene)])
 			// Calculate distance using pythagorean theorem
 			distanceX := mapCityLocation[nextCityIndex][0] - mapCityLocation[cityIndex][0]
 			distanceY := mapCityLocation[nextCityIndex][1] - mapCityLocation[cityIndex][1]
 			distance := math.Sqrt(distanceX*distanceX + distanceY*distanceY)
-
-			// Update fitness and currentCityIndex
+			// Update fitness
 			c.Fitness += distance
-			cityIndex = nextCityIndex
 		}
 	}
 
 	custom.CrossOverFunction = func(parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
-		// Default
-		// - Single point crossover
 		length := len(parent1.Gene)
+		// Init
+		child1 = &easyga.Chromosome{Gene: make([]byte, 0)}
+		child2 = &easyga.Chromosome{Gene: make([]byte, 0)}
 
-		child1 = &easyga.Chromosome{Gene: make([]uint8, length)}
-		child2 = &easyga.Chromosome{Gene: make([]uint8, length)}
-		separatePoint1 := length/3 + 1
+
+		separatePoint1 := length/3
+		if length % 3 != 0 {
+			separatePoint1 += 1
+		}
 		separatePoint2 := separatePoint1 * 2
-		child2Center := parent1.Gene[separatePoint1:separatePoint2]
+		// Child1
 		child1Center := parent2.Gene[separatePoint1:separatePoint2]
-
-		for i := 0; i < length; i++ {
+		tempChild1Gene := make([]byte, 0)
+		for i := range parent1.Gene {
 			isEqual := false
-			for j := range child2Center {
-				if parent1.Gene[i] == child2Center[j] {
+			for j := range child1Center {
+				if parent1.Gene[i] == child1Center[j] {
 					isEqual = true
 					break
 				}
 			}
 			if !isEqual {
-				child2.Gene[i] = parent1.Gene[i]
+				tempChild1Gene = append(tempChild1Gene, parent1.Gene[i])
 			}
 		}
 
-		tempchild2 := make([]byte, separatePoint2-separatePoint1+1)
-		copy(tempchild2, child2.Gene[separatePoint1:separatePoint2])
-		child2.Gene = append(child2.Gene[0:separatePoint1], child2Center...)
-		child2.Gene = append(child2.Gene[:], tempchild2[:]...)
-
-		for i := 0; i < length; i++ {
+		child1.Gene = append(child1.Gene, tempChild1Gene[0:separatePoint1]...)
+		child1.Gene = append(child1.Gene, child1Center...)
+		child1.Gene = append(child1.Gene, tempChild1Gene[separatePoint1:]...)
+		// Child2
+		child2Center := parent1.Gene[separatePoint1:separatePoint2]
+		tempChild2Gene := make([]byte, 0)
+		for i := range parent2.Gene {
 			isEqual := false
 			for j := range child2Center {
-				if parent2.Gene[i] == child1Center[j] {
+				if parent2.Gene[i] == child2Center[j] {
 					isEqual = true
 					break
 				}
 			}
 			if !isEqual {
-				child1.Gene[i] = parent2.Gene[i]
+				tempChild2Gene = append(tempChild2Gene, parent2.Gene[i])
 			}
 		}
 
-		tempchild1 := make([]byte, separatePoint2-separatePoint1+1)
-		copy(tempchild1, child1.Gene[separatePoint1:separatePoint2])
-		child1.Gene = append(child1.Gene[0:separatePoint1], child1Center...)
-		child1.Gene = append(child1.Gene[:], tempchild1[:]...)
+		child2.Gene = append(child2.Gene, tempChild2Gene[0:separatePoint1]...)
+		child2.Gene = append(child2.Gene, child2Center...)
+		child2.Gene = append(child2.Gene, tempChild2Gene[separatePoint1:]...)
 
-		return child1, child2
+		return
 	}
 
 	custom.CheckStopFunction = func(ga *easyga.GeneticAlgorithm) bool {
+		_, bestFitness := ga.Population.FindBest()
+		maybeBest := float64(8)
+
+		if bestFitness <= maybeBest || ga.Iteration >= ga.Params.IterationsLimit {
+			return true
+		}
+
 		return false
 	}
-
-	testChromosome := easyga.Chromosome{Gene: []byte{0, 1, 2, 3, 4, 5, 6, 7}[:], Fitness: 0}
-	custom.FitnessFunction(&testChromosome)
-	fmt.Println(testChromosome)
-	return
 
 	if err := ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	//best, bestFit, iteration := ga.Run()
-	//
-	//fmt.Println("Best gene is", best)
-	//fmt.Println("Best fitness is", bestFit)
-	//fmt.Println("Find it in", iteration, "generation.")
+	best, bestFit, iteration := ga.Run()
+
+	fmt.Println("Best gene is", best)
+	fmt.Println("Best fitness is", bestFit)
+	fmt.Println("Find it in", iteration, "generation.")
 }

@@ -105,7 +105,7 @@ func (ga *GeneticAlgorithm) tournament() (newPopulation population) {
 		chromosome1 := ga.Population.Chromosomes[getRandomChromosomeIndex(&ga.Population)]
 		chromosome2 := ga.Population.Chromosomes[getRandomChromosomeIndex(&ga.Population)]
 
-		if chromosome1.Fitness > chromosome2.Fitness {
+		if chromosome1.Fitness < chromosome2.Fitness {
 			newPopulation.Chromosomes = append(newPopulation.Chromosomes, chromosome1)
 		} else {
 			newPopulation.Chromosomes = append(newPopulation.Chromosomes, chromosome2)
