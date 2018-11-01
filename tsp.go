@@ -128,7 +128,7 @@ func main() {
 		_, bestFitness := ga.Population.FindBest()
 		maybeBest := float64(-1877.214)
 
-		if bestFitness >= maybeBest || ga.Iteration >= ga.Params.IterationsLimit {
+		if bestFitness >= maybeBest+1 || ga.Iteration >= ga.Params.IterationsLimit {
 			return true
 		}
 

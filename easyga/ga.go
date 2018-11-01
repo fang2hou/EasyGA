@@ -2,8 +2,8 @@ package easyga
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
+	"sync"
 )
 
 type Parameters struct {
@@ -30,7 +30,6 @@ type GeneticAlgorithm struct {
 	Population population
 }
 
-
 func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) error {
 	if err := checkParam(parameters); err != nil {
 		return err
@@ -51,6 +50,7 @@ func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) 
 
 func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration int) {
 	for !ga.checkStop() {
+		var wait sync.WaitGroup
 		// Initialization
 		var nextPopulation population
 
@@ -70,18 +70,26 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 
 			nextPopulation.Chromosomes = append(nextPopulation.Chromosomes, *child1, *child2)
 		}
-
 		// Mutation - perform mutation of population
 		for i := range nextPopulation.Chromosomes {
 			if rand.Float64() < ga.Params.MutationProbability {
-				ga.mutate(&nextPopulation.Chromosomes[i])
+				wait.Add(1)
+				go func(i int, wait *sync.WaitGroup) {
+					ga.mutate(&nextPopulation.Chromosomes[i])
+					wait.Done()
+				}(i, &wait)
 			}
 		}
-
+		wait.Wait()
 		// Update fitness
 		for i := range nextPopulation.Chromosomes {
-			ga.fitness(&nextPopulation.Chromosomes[i])
+			wait.Add(1)
+			go func(i int, wait *sync.WaitGroup) {
+				ga.fitness(&nextPopulation.Chromosomes[i])
+				wait.Done()
+			}(i, &wait)
 		}
+		wait.Wait()
 
 		ga.Population = nextPopulation
 		ga.Iteration++
@@ -91,11 +99,11 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 	fitness = bestFitness
 	iteration = ga.Iteration
 
-
-	//TODO: DEBUG ONLY
-	fmt.Println("Best index:", bestIndex)
 	best = ga.Population.Chromosomes[bestIndex]
-	fmt.Println(best)
+
+	//DEBUG ONLY
+	//fmt.Println("Best index:", bestIndex)
+	//fmt.Println(best)
 
 	return
 }
