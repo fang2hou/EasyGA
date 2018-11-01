@@ -16,8 +16,6 @@ import (
 func main() {
 	var ga easyga.GeneticAlgorithm
 
-	rand.Seed(42)
-
 	cityLocation := readCSVFile()
 
 	parameters := easyga.Parameters{
@@ -128,7 +126,7 @@ func main() {
 		_, bestFitness := ga.Population.FindBest()
 		maybeBest := float64(-1877.214)
 
-		if bestFitness >= maybeBest+1 || ga.Iteration >= ga.Params.IterationsLimit {
+		if bestFitness >= maybeBest || ga.Iteration >= ga.Params.IterationsLimit {
 			return true
 		}
 
@@ -175,9 +173,7 @@ func readCSVFile() [][]float64 {
 		tempCityX, _ := strconv.ParseFloat(record[0], 64)
 		tempCityY, _ := strconv.ParseFloat(record[1], 64)
 
-		newCity := []float64{tempCityX, tempCityY}[:]
-
-		cityLocation = append(cityLocation, newCity)
+		cityLocation = append(cityLocation, []float64{tempCityX, tempCityY})
 
 	}
 
