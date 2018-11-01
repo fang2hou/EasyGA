@@ -2,9 +2,15 @@ package main
 
 import (
 	"./easyga"
+	"encoding/csv"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"math"
 	"math/rand"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -12,18 +18,14 @@ func main() {
 
 	rand.Seed(42)
 
-	mapCityLocation := map[int][2]float64{
-		0: {-1, 1}, 1: {0, 1}, 2: {1, 1},
-		7: {-1, 0}, 3: {1, 0},
-		6: {-1, -1}, 5: {0, -1}, 4: {1, -1},
-	}
+	cityLocation := readCSVFile()
 
 	parameters := easyga.Parameters{
-		CrossoverProbability: .7,
-		MutationProbability:  .1,
-		PopulationSize:       10,
+		CrossoverProbability: .8,
+		MutationProbability:  .2,
+		PopulationSize:       20,
 		Genotype:             2,
-		ChromosomeLength:     8,
+		ChromosomeLength:     20,
 		IterationsLimit:      100000,
 	}
 
@@ -59,13 +61,13 @@ func main() {
 		for geneIndex := range c.Gene {
 			// Get next city index from gene
 			cityIndex := int(c.Gene[geneIndex])
-			nextCityIndex := int(c.Gene[(geneIndex + 1) % len(c.Gene)])
+			nextCityIndex := int(c.Gene[(geneIndex+1)%len(c.Gene)])
 			// Calculate distance using pythagorean theorem
-			distanceX := mapCityLocation[nextCityIndex][0] - mapCityLocation[cityIndex][0]
-			distanceY := mapCityLocation[nextCityIndex][1] - mapCityLocation[cityIndex][1]
+			distanceX := cityLocation[nextCityIndex][0] - cityLocation[cityIndex][0]
+			distanceY := cityLocation[nextCityIndex][1] - cityLocation[cityIndex][1]
 			distance := math.Sqrt(distanceX*distanceX + distanceY*distanceY)
 			// Update fitness
-			c.Fitness += distance
+			c.Fitness -= distance
 		}
 	}
 
@@ -75,9 +77,8 @@ func main() {
 		child1 = &easyga.Chromosome{Gene: make([]byte, 0)}
 		child2 = &easyga.Chromosome{Gene: make([]byte, 0)}
 
-
-		separatePoint1 := length/3
-		if length % 3 != 0 {
+		separatePoint1 := length / 3
+		if length%3 != 0 {
 			separatePoint1 += 1
 		}
 		separatePoint2 := separatePoint1 * 2
@@ -125,9 +126,9 @@ func main() {
 
 	custom.CheckStopFunction = func(ga *easyga.GeneticAlgorithm) bool {
 		_, bestFitness := ga.Population.FindBest()
-		maybeBest := float64(8)
+		maybeBest := float64(-1877.214)
 
-		if bestFitness <= maybeBest || ga.Iteration >= ga.Params.IterationsLimit {
+		if bestFitness >= maybeBest || ga.Iteration >= ga.Params.IterationsLimit {
 			return true
 		}
 
@@ -144,4 +145,41 @@ func main() {
 	fmt.Println("Best gene is", best)
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
+}
+
+func readCSVFile() [][]float64 {
+	cityLocation := make([][]float64, 0)
+
+	fileName := "./tsp.cities.csv"
+	ioReader, err := ioutil.ReadFile(fileName)
+
+	if err != nil {
+		panic(err)
+	}
+
+	r := csv.NewReader(strings.NewReader(string(ioReader)))
+
+	// Disable the sentence start with #
+	r.Comment = []rune("#")[0]
+
+	for i := 0; ; i++ {
+
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		tempCityX, _ := strconv.ParseFloat(record[0], 64)
+		tempCityY, _ := strconv.ParseFloat(record[1], 64)
+
+		newCity := []float64{tempCityX, tempCityY}[:]
+
+		cityLocation = append(cityLocation, newCity)
+
+	}
+
+	return cityLocation
 }
