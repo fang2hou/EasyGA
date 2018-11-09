@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/fang2hou/easyga"
+	easyga "github.com/fang2hou/easyga"
 	"fmt"
 	"math/rand"
 )
