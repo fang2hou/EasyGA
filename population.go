@@ -1,4 +1,4 @@
-package easyga
+package EasyGA
 
 import "math/rand"
 

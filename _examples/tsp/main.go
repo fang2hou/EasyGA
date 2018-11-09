@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./easyga"
+	"github.com/fang2hou/easyga"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -69,19 +69,16 @@ func main() {
 	}
 
 	custom.CrossOverFunction = func(parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
-		// Initialize
-
-		child1 = &easyga.Chromosome{Gene: make([]byte, 0)}
-		child2 = &easyga.Chromosome{Gene: make([]byte, 0)}
-
-		separateStart := parameters.ChromosomeLength / 3
+		// Find separate part
+		crossoverStart := parameters.ChromosomeLength / 3
 		if parameters.ChromosomeLength%3 != 0 {
-			separateStart += 1
+			crossoverStart += 1
 		}
-		separateEnd := separateStart * 2
+		crossoverEnd := crossoverStart * 2
 
 		// child 1
-		crossoverPart := parent2.Gene[separateStart:separateEnd]
+		child1 = &easyga.Chromosome{Gene: make([]byte, 0)}
+		crossoverPart := parent2.Gene[crossoverStart:crossoverEnd]
 		copyPart := make([]byte, 0)
 		for parentIndex := range parent1.Gene {
 			isEqual := false
@@ -96,12 +93,13 @@ func main() {
 			}
 		}
 
-		child1.Gene = append(child1.Gene, copyPart[0:separateStart]...)
+		child1.Gene = append(child1.Gene, copyPart[0:crossoverStart]...)
 		child1.Gene = append(child1.Gene, crossoverPart...)
-		child1.Gene = append(child1.Gene, copyPart[separateStart:]...)
+		child1.Gene = append(child1.Gene, copyPart[crossoverStart:]...)
 
 		// child 2
-		crossoverPart = parent1.Gene[separateStart:separateEnd]
+		child2 = &easyga.Chromosome{Gene: make([]byte, 0)}
+		crossoverPart = parent1.Gene[crossoverStart:crossoverEnd]
 		copyPart = make([]byte, 0)
 		for parentIndex := range parent2.Gene {
 			isEqual := false
@@ -116,9 +114,9 @@ func main() {
 			}
 		}
 
-		child2.Gene = append(child2.Gene, copyPart[0:separateStart]...)
+		child2.Gene = append(child2.Gene, copyPart[0:crossoverStart]...)
 		child2.Gene = append(child2.Gene, crossoverPart...)
-		child2.Gene = append(child2.Gene, copyPart[separateStart:]...)
+		child2.Gene = append(child2.Gene, copyPart[crossoverStart:]...)
 
 		return
 	}
@@ -146,8 +144,8 @@ func main() {
 	fmt.Println("Find it in", iteration, "generation.")
 }
 
-func readCSVFile() [][]float64 {
-	fileName := "./tsp.cities.csv"
+func readCSVFile() (cityLocation [][]float64) {
+	fileName := "tsp.cities.random.1.csv"
 	ioReader, err := ioutil.ReadFile(fileName)
 
 	if err != nil {
@@ -160,7 +158,6 @@ func readCSVFile() [][]float64 {
 	r.Comment = []rune("#")[0]
 
 	// Parse data
-	cityLocation := make([][]float64, 0)
 	for i := 0; ; i++ {
 		record, err := r.Read()
 
@@ -175,5 +172,5 @@ func readCSVFile() [][]float64 {
 		cityLocation = append(cityLocation, []float64{tempCityX, tempCityY})
 	}
 
-	return cityLocation
+	return
 }
