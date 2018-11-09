@@ -1,7 +1,8 @@
 package main
 
 import (
-	"./easyga"
+	"bufio"
+	"github.com/fang2hou/easyga"
 	"fmt"
 	"image"
 	"image/png"
@@ -21,16 +22,17 @@ func main() {
 		ChromosomeLength:     24,
 		IterationsLimit:      1000,
 	}
-	imgOriginal,err := decodePNG("./exampledata/lena.png")
+	originalImage,err := decodePNG("lena.png")
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
-	//imgWithNoise,err := decodePNG("./exampledata/lena.png_noisy_NA_XXX_NFRow_XXX_NFCol_XXX.png")
+	//noisyImage,err := decodePNG("lena_noisy.png")
 	//if err != nil {
 	//	return
 	//}
-	fmt.Println(imgOriginal)
-	encodePNG(imgOriginal)
+	fmt.Println(originalImage)
+	encodePNG(originalImage)
 
 	custom := easyga.CustomFunctions{}
 
@@ -87,34 +89,28 @@ func main() {
 	fmt.Println("Find it in", iteration, "generation.")
 }
 
-func decodePNG(filePath string)(img image.Image, err error) {
+func decodePNG(filePath string)(image.Image,error) {
 	reader, err := os.Open(filePath)
+	fmt.Println(filePath)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	defer reader.Close()
 
-	img,err = png.Decode(reader)
-
-	fmt.Print(img)
-	return
+	return png.Decode(bufio.NewReader(reader))
 }
 
 func encodePNG(img image.Image)(filePath string,err error) {
-	filePath = "./output/outputlena.png"
-	writer, err := os.Create(filePath)
+	filePath = "lena_output.png"
+	writer, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return filePath,err
 	}
 	defer writer.Close()
 
 	png.Encode(writer,img)
-
 	fmt.Print(filePath)
-	return
-}
-
-func noiseResolve(img image.Image, c easyga.Chromosome)(imgResolved image.Image){
-
+	fmt.Print(img)
 	return
 }
