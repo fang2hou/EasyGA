@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"math"
 	"math/rand"
 	"strconv"
@@ -23,7 +22,7 @@ func main() {
 		MutationProbability:  .2,
 		PopulationSize:       20,
 		Genotype:             2,
-		ChromosomeLength:     20,
+		ChromosomeLength:     len(cityLocation),
 		IterationsLimit:      100000,
 	}
 
@@ -167,7 +166,7 @@ func readCSVFile() [][]float64 {
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 
 		tempCityX, _ := strconv.ParseFloat(record[0], 64)
