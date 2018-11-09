@@ -69,54 +69,56 @@ func main() {
 	}
 
 	custom.CrossOverFunction = func(parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
-		length := len(parent1.Gene)
-		// Init
+		// Initialize
+
 		child1 = &easyga.Chromosome{Gene: make([]byte, 0)}
 		child2 = &easyga.Chromosome{Gene: make([]byte, 0)}
 
-		separatePoint1 := length / 3
-		if length%3 != 0 {
-			separatePoint1 += 1
+		separateStart := parameters.ChromosomeLength / 3
+		if parameters.ChromosomeLength%3 != 0 {
+			separateStart += 1
 		}
-		separatePoint2 := separatePoint1 * 2
-		// Child1
-		child1Center := parent2.Gene[separatePoint1:separatePoint2]
-		tempChild1Gene := make([]byte, 0)
-		for i := range parent1.Gene {
+		separateEnd := separateStart * 2
+
+		// child 1
+		crossoverPart := parent2.Gene[separateStart:separateEnd]
+		copyPart := make([]byte, 0)
+		for parentIndex := range parent1.Gene {
 			isEqual := false
-			for j := range child1Center {
-				if parent1.Gene[i] == child1Center[j] {
+			for skipCopyIndex := range crossoverPart {
+				if parent1.Gene[parentIndex] == crossoverPart[skipCopyIndex] {
 					isEqual = true
 					break
 				}
 			}
 			if !isEqual {
-				tempChild1Gene = append(tempChild1Gene, parent1.Gene[i])
+				copyPart = append(copyPart, parent1.Gene[parentIndex])
 			}
 		}
 
-		child1.Gene = append(child1.Gene, tempChild1Gene[0:separatePoint1]...)
-		child1.Gene = append(child1.Gene, child1Center...)
-		child1.Gene = append(child1.Gene, tempChild1Gene[separatePoint1:]...)
-		// Child2
-		child2Center := parent1.Gene[separatePoint1:separatePoint2]
-		tempChild2Gene := make([]byte, 0)
-		for i := range parent2.Gene {
+		child1.Gene = append(child1.Gene, copyPart[0:separateStart]...)
+		child1.Gene = append(child1.Gene, crossoverPart...)
+		child1.Gene = append(child1.Gene, copyPart[separateStart:]...)
+
+		// child 2
+		crossoverPart = parent1.Gene[separateStart:separateEnd]
+		copyPart = make([]byte, 0)
+		for parentIndex := range parent2.Gene {
 			isEqual := false
-			for j := range child2Center {
-				if parent2.Gene[i] == child2Center[j] {
+			for skipCopyIndex := range crossoverPart {
+				if parent2.Gene[parentIndex] == crossoverPart[skipCopyIndex] {
 					isEqual = true
 					break
 				}
 			}
 			if !isEqual {
-				tempChild2Gene = append(tempChild2Gene, parent2.Gene[i])
+				copyPart = append(copyPart, parent2.Gene[parentIndex])
 			}
 		}
 
-		child2.Gene = append(child2.Gene, tempChild2Gene[0:separatePoint1]...)
-		child2.Gene = append(child2.Gene, child2Center...)
-		child2.Gene = append(child2.Gene, tempChild2Gene[separatePoint1:]...)
+		child2.Gene = append(child2.Gene, copyPart[0:separateStart]...)
+		child2.Gene = append(child2.Gene, crossoverPart...)
+		child2.Gene = append(child2.Gene, copyPart[separateStart:]...)
 
 		return
 	}
@@ -145,8 +147,6 @@ func main() {
 }
 
 func readCSVFile() [][]float64 {
-	cityLocation := make([][]float64, 0)
-
 	fileName := "./tsp.cities.csv"
 	ioReader, err := ioutil.ReadFile(fileName)
 
@@ -156,24 +156,23 @@ func readCSVFile() [][]float64 {
 
 	r := csv.NewReader(strings.NewReader(string(ioReader)))
 
-	// Disable the sentence start with #
+	// Skip the line start with #
 	r.Comment = []rune("#")[0]
 
+	// Parse data
+	cityLocation := make([][]float64, 0)
 	for i := 0; ; i++ {
-
 		record, err := r.Read()
+
 		if err == io.EOF {
 			break
-		}
-		if err != nil {
+		} else if err != nil {
 			panic(err)
 		}
 
 		tempCityX, _ := strconv.ParseFloat(record[0], 64)
 		tempCityY, _ := strconv.ParseFloat(record[1], 64)
-
 		cityLocation = append(cityLocation, []float64{tempCityX, tempCityY})
-
 	}
 
 	return cityLocation
