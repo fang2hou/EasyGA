@@ -1,9 +1,9 @@
 package main
 
 import (
-	easyga "github.com/fang2hou/easyga"
 	"fmt"
 	"math/rand"
+	"github.com/fang2hou/easyga"
 )
 
 func main() {
