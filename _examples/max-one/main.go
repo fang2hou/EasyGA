@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+
 	"github.com/fang2hou/easyga"
 )
 
