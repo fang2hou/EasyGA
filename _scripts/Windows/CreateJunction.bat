@@ -1,5 +1,5 @@
 @echo off
-cd /d %~dp0..\..\..\..\
+cd /d %~dp0..\..\..\
 if exist "%USERPROFILE%\go\src\github.com\fang2hou\easyga" (
     echo Folder is exist.
     echo You can use another bat to delete.

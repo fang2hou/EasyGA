@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/fang2hou/easyga"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -10,6 +9,8 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
+
+	"github.com/fang2hou/easyga"
 )
 
 func main() {
@@ -72,7 +73,7 @@ func main() {
 		// Find separate part
 		crossoverStart := parameters.ChromosomeLength / 3
 		if parameters.ChromosomeLength%3 != 0 {
-			crossoverStart += 1
+			crossoverStart++
 		}
 		crossoverEnd := crossoverStart * 2
 

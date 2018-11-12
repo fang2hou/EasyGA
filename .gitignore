@@ -14,5 +14,6 @@
 # macOS cache file
 .DS_Store
 
-# Goland project configuration
+# Project configuration
 .idea/workspace.xml
+.vscode/*

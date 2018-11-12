@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// Parameters is a struct that contains everything generation need.
 type Parameters struct {
 	CrossoverProbability float64
 	MutationProbability  float64
@@ -15,6 +16,7 @@ type Parameters struct {
 	IterationsLimit      int
 }
 
+// CustomFunctions is a struct that contains every functions customized.
 type CustomFunctions struct {
 	ChromosomeInitFunction func(c *Chromosome)
 	MutateFunction         func(c *Chromosome)
@@ -23,6 +25,7 @@ type CustomFunctions struct {
 	CheckStopFunction      func(ga *GeneticAlgorithm) bool
 }
 
+// GeneticAlgorithm is a struct that contains everything of genetic algorithm.
 type GeneticAlgorithm struct {
 	Params     Parameters
 	Iteration  int
@@ -30,6 +33,7 @@ type GeneticAlgorithm struct {
 	Population population
 }
 
+// Init function will intialize the original population.
 func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) error {
 	if err := checkParam(parameters); err != nil {
 		return err
@@ -48,6 +52,7 @@ func (ga *GeneticAlgorithm) Init(parameters Parameters, custom CustomFunctions) 
 	return nil
 }
 
+// Run method will create a loop for find best result.
 func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration int) {
 	for !ga.checkStop() {
 		var wait sync.WaitGroup

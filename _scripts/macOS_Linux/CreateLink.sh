@@ -1,6 +1,6 @@
 #!/bin/bash
 file_path=$(cd "$(dirname "$0")"; pwd)
-project_path=$file_path"/../../../../EasyGA"
+project_path=$file_path"/../../../EasyGA"
 
 cd ~
 
