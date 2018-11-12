@@ -15,5 +15,5 @@
 .DS_Store
 
 # Project configuration
-.idea/workspace.xml
+.idea/*
 .vscode/*
