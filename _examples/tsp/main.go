@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -10,10 +11,16 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/wcharczuk/go-chart"
 	"github.com/fang2hou/easyga"
 )
 
 func main() {
+	http.HandleFunc("/", drawChart)
+	http.ListenAndServe(":8182", nil)
+}
+
+func drawChart(res http.ResponseWriter, req *http.Request) {
 	var ga easyga.GeneticAlgorithm
 
 	cityLocation := readCSVFile()
@@ -143,10 +150,46 @@ func main() {
 	fmt.Println("Best gene is", best)
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
+
+	xValue := make([]float64, 0)
+	yValue := make([]float64, 0)
+
+	for i := range best.Gene {
+		xValue = append(xValue, float64(cityLocation[best.Gene[i]][0]))
+		yValue = append(yValue, float64(cityLocation[best.Gene[i]][1]))
+	}
+
+	// Fix the line between the first city and last city
+	xValue = append(xValue, float64(cityLocation[best.Gene[0]][0]))
+	yValue = append(yValue, float64(cityLocation[best.Gene[0]][1]))
+
+	tspSeries := chart.ContinuousSeries{
+		XValues: xValue,
+		YValues: yValue,
+		Style: chart.Style{
+			Show:        true,
+			StrokeColor: chart.ColorBlack,
+			StrokeWidth: 1.0,
+		},
+	}
+
+	graph := chart.Chart{
+		Title: "TSP Final result",
+		Width: 500,
+		Height: 500,
+		DPI:   100.0,
+		Series: []chart.Series{ tspSeries },
+	}
+
+	res.Header().Set("Content-Type", chart.ContentTypePNG)
+	err := graph.Render(chart.PNG, res)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func readCSVFile() (cityLocation [][]float64) {
-	fileName := "tsp.cities.random.1.csv"
+	fileName := "tsp.cities.cycle.csv"
 	ioReader, err := ioutil.ReadFile(fileName)
 
 	if err != nil {
