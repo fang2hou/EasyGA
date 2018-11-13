@@ -1,21 +1,22 @@
 package main
 
 import (
-	"net/http"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/wcharczuk/go-chart"
 	"github.com/fang2hou/easyga"
+	"github.com/wcharczuk/go-chart"
 )
 
 func main() {
+	fmt.Println("Start service at http://localhost:8182/")
 	http.HandleFunc("/", drawChart)
 	http.ListenAndServe(":8182", nil)
 }
@@ -174,11 +175,11 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 	}
 
 	graph := chart.Chart{
-		Title: "TSP Final result",
-		Width: 500,
+		Title:  "TSP Final result",
+		Width:  500,
 		Height: 500,
-		DPI:   100.0,
-		Series: []chart.Series{ tspSeries },
+		DPI:    100.0,
+		Series: []chart.Series{tspSeries},
 	}
 
 	res.Header().Set("Content-Type", chart.ContentTypePNG)
