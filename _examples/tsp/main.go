@@ -16,6 +16,7 @@ import (
 )
 
 func main() {
+	easyga.
 	fmt.Println("Start service at http://localhost:8182/")
 	http.HandleFunc("/", drawChart)
 	http.ListenAndServe(":8182", nil)
