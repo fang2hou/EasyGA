@@ -16,8 +16,7 @@ import (
 )
 
 func main() {
-	easyga.
-	fmt.Println("Start service at http://localhost:8182/")
+	fmt.Println("Server: http://localhost:8182/")
 	http.HandleFunc("/", drawChart)
 	http.ListenAndServe(":8182", nil)
 }
@@ -33,7 +32,7 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 		PopulationSize:       20,
 		Genotype:             2,
 		ChromosomeLength:     len(cityLocation),
-		IterationsLimit:      100000,
+		IterationsLimit:      1000000,
 	}
 
 	custom := easyga.CustomFunctions{}
@@ -191,7 +190,7 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 }
 
 func readCSVFile() (cityLocation [][]float64) {
-	fileName := "tsp.cities.cycle.csv"
+	fileName := "tsp.cities.random.1.csv"
 	ioReader, err := ioutil.ReadFile(fileName)
 
 	if err != nil {
