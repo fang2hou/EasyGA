@@ -26,7 +26,7 @@ func main() {
 
 	// Start server
 	fmt.Println("Server: http://localhost:8182/")
-	http.HandleFunc("/", tsp.drawChart)
+	http.HandleFunc("/", tsp.DrawChart)
 	http.ListenAndServe(":8182", nil)
 }
 
@@ -156,8 +156,9 @@ func (tsp *travellingSalesmanProblem) Run() (easyga.Chromosome, float64, int) {
 	return tsp.ga.Run()
 }
 
-func (tsp *travellingSalesmanProblem) drawChart(res http.ResponseWriter, req *http.Request) {
-	tsp.Init()
+func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *http.Request) {
+	tsp.Init() // If you just want to run once, move tsp.init() to main()
+
 	best, bestFit, iteration := tsp.Run()
 
 	fmt.Println("Best gene is", best)
@@ -202,21 +203,21 @@ func (tsp *travellingSalesmanProblem) drawChart(res http.ResponseWriter, req *ht
 }
 
 func (tsp *travellingSalesmanProblem) getCityLocation(fileName string) {
+	// Open file
 	file, err := os.Open(fileName)
-
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 	defer file.Close()
-	r := csv.NewReader(file)
 
-	// Skip the line start with #
+	// Create CSV Reader
+	r := csv.NewReader(file)
 	r.Comment = []rune("#")[0]
 
 	// Parse data
 	for {
-		// Read a line befor read EOF signal
+		// Read a line before get EOF signal
 		record, err := r.Read()
 		if err == io.EOF {
 			break
@@ -229,6 +230,4 @@ func (tsp *travellingSalesmanProblem) getCityLocation(fileName string) {
 		tempCityY, _ := strconv.ParseFloat(record[1], 64)
 		tsp.cityLocation = append(tsp.cityLocation, []float64{tempCityX, tempCityY})
 	}
-
-	return
 }
