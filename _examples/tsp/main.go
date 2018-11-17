@@ -4,35 +4,40 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
-	"strings"
 
 	"github.com/fang2hou/easyga"
 	"github.com/wcharczuk/go-chart"
 )
 
+type travellingSalesmanProblem struct {
+	ga           easyga.GeneticAlgorithm
+	cityLocation [][]float64
+}
+
 func main() {
+	// Initalize a travelling salesman problem
+	var tsp travellingSalesmanProblem
+	tsp.getCityLocation("tsp.cities.cycle.csv")
+
+	// Start server
 	fmt.Println("Server: http://localhost:8182/")
-	http.HandleFunc("/", drawChart)
+	http.HandleFunc("/", tsp.drawChart)
 	http.ListenAndServe(":8182", nil)
 }
 
-func drawChart(res http.ResponseWriter, req *http.Request) {
-	var ga easyga.GeneticAlgorithm
-
-	cityLocation := readCSVFile()
-
+func (tsp *travellingSalesmanProblem) Init() {
 	parameters := easyga.Parameters{
 		CrossoverProbability: .8,
 		MutationProbability:  .2,
 		PopulationSize:       20,
 		Genotype:             2,
-		ChromosomeLength:     len(cityLocation),
-		IterationsLimit:      1000000,
+		ChromosomeLength:     len(tsp.cityLocation),
+		IterationsLimit:      1000,
 	}
 
 	custom := easyga.CustomFunctions{}
@@ -69,8 +74,8 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 			cityIndex := int(c.Gene[geneIndex])
 			nextCityIndex := int(c.Gene[(geneIndex+1)%len(c.Gene)])
 			// Calculate distance using pythagorean theorem
-			distanceX := cityLocation[nextCityIndex][0] - cityLocation[cityIndex][0]
-			distanceY := cityLocation[nextCityIndex][1] - cityLocation[cityIndex][1]
+			distanceX := tsp.cityLocation[nextCityIndex][0] - tsp.cityLocation[cityIndex][0]
+			distanceY := tsp.cityLocation[nextCityIndex][1] - tsp.cityLocation[cityIndex][1]
 			distance := math.Sqrt(distanceX*distanceX + distanceY*distanceY)
 			// Update fitness
 			c.Fitness -= distance
@@ -141,12 +146,19 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 		return false
 	}
 
-	if err := ga.Init(parameters, custom); err != nil {
+	if err := tsp.ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)
 		return
 	}
+}
 
-	best, bestFit, iteration := ga.Run()
+func (tsp *travellingSalesmanProblem) Run() (easyga.Chromosome, float64, int) {
+	return tsp.ga.Run()
+}
+
+func (tsp *travellingSalesmanProblem) drawChart(res http.ResponseWriter, req *http.Request) {
+	tsp.Init()
+	best, bestFit, iteration := tsp.Run()
 
 	fmt.Println("Best gene is", best)
 	fmt.Println("Best fitness is", bestFit)
@@ -156,13 +168,13 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 	yValue := make([]float64, 0)
 
 	for i := range best.Gene {
-		xValue = append(xValue, float64(cityLocation[best.Gene[i]][0]))
-		yValue = append(yValue, float64(cityLocation[best.Gene[i]][1]))
+		xValue = append(xValue, float64(tsp.cityLocation[best.Gene[i]][0]))
+		yValue = append(yValue, float64(tsp.cityLocation[best.Gene[i]][1]))
 	}
 
 	// Fix the line between the first city and last city
-	xValue = append(xValue, float64(cityLocation[best.Gene[0]][0]))
-	yValue = append(yValue, float64(cityLocation[best.Gene[0]][1]))
+	xValue = append(xValue, float64(tsp.cityLocation[best.Gene[0]][0]))
+	yValue = append(yValue, float64(tsp.cityLocation[best.Gene[0]][1]))
 
 	tspSeries := chart.ContinuousSeries{
 		XValues: xValue,
@@ -189,32 +201,33 @@ func drawChart(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func readCSVFile() (cityLocation [][]float64) {
-	fileName := "tsp.cities.random.1.csv"
-	ioReader, err := ioutil.ReadFile(fileName)
+func (tsp *travellingSalesmanProblem) getCityLocation(fileName string) {
+	file, err := os.Open(fileName)
 
 	if err != nil {
-		panic(err)
+		fmt.Println("Error:", err)
+		return
 	}
-
-	r := csv.NewReader(strings.NewReader(string(ioReader)))
+	defer file.Close()
+	r := csv.NewReader(file)
 
 	// Skip the line start with #
 	r.Comment = []rune("#")[0]
 
 	// Parse data
-	for i := 0; ; i++ {
+	for {
+		// Read a line befor read EOF signal
 		record, err := r.Read()
-
 		if err == io.EOF {
 			break
 		} else if err != nil {
 			panic(err)
 		}
 
+		// Add city location to array
 		tempCityX, _ := strconv.ParseFloat(record[0], 64)
 		tempCityY, _ := strconv.ParseFloat(record[1], 64)
-		cityLocation = append(cityLocation, []float64{tempCityX, tempCityY})
+		tsp.cityLocation = append(tsp.cityLocation, []float64{tempCityX, tempCityY})
 	}
 
 	return
