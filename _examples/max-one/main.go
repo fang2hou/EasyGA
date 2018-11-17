@@ -2,15 +2,12 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/fang2hou/easyga"
 )
 
 func main() {
 	var ga easyga.GeneticAlgorithm
-
-	rand.Seed(42)
 
 	parameters := easyga.Parameters{
 		CrossoverProbability: 1,
@@ -24,11 +21,11 @@ func main() {
 	custom := easyga.CustomFunctions{}
 
 	//custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
-	//	You can customize your fitness function here
+	//	You can customize your chromosome initialization function here
 	//}
 
 	//custom.MutateFunction = func(c *easyga.Chromosome) {
-	//	You can customize your crossover function here
+	//	You can customize your mutation function here
 	//}
 
 	//custom.FitnessFunction = func(c *easyga.Chromosome) {
@@ -36,7 +33,7 @@ func main() {
 	//}
 
 	//custom.CrossOverFunction = func(c *easyga.Chromosome) {
-	//	You can customize your fitness function here
+	//	You can customize your crossover function here
 	//}
 
 	//custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {
