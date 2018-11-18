@@ -9,19 +9,28 @@ import (
 func main() {
 	var ga easyga.GeneticAlgorithm
 
-	parameters := easyga.Parameters{
+	parameters := easyga.GeneticAlgorithmParameters{
 		CrossoverProbability: 1,
 		MutationProbability:  .1,
 		PopulationSize:       4,
 		Genotype:             2,
 		ChromosomeLength:     10,
 		IterationsLimit:      1000,
+		RandomSeed:           43,
 	}
 
-	custom := easyga.CustomFunctions{}
+	custom := easyga.GeneticAlgorithmFunctions{}
 
 	//custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
 	//	You can customize your chromosome initialization function here
+	//}
+
+	//custom.SelectFunction =  func(ga *GeneticAlgorithm) []int {
+	//	You can customize your selection function here
+	//}
+
+	//custom.CrossOverFunction = func(c *easyga.Chromosome) {
+	//	You can customize your crossover function here
 	//}
 
 	//custom.MutateFunction = func(c *easyga.Chromosome) {
@@ -30,10 +39,6 @@ func main() {
 
 	//custom.FitnessFunction = func(c *easyga.Chromosome) {
 	//	You can customize your fitness function here
-	//}
-
-	//custom.CrossOverFunction = func(c *easyga.Chromosome) {
-	//	You can customize your crossover function here
 	//}
 
 	//custom.CheckStopFunction = func (ga *easyga.GeneticAlgorithm) bool {

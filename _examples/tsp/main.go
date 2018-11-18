@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
@@ -20,7 +19,7 @@ type travellingSalesmanProblem struct {
 }
 
 func main() {
-	// Initalize a travelling salesman problem
+	// Initialize a travelling salesman problem
 	var tsp travellingSalesmanProblem
 	tsp.getCityLocation("tsp.cities.cycle.csv")
 
@@ -31,7 +30,7 @@ func main() {
 }
 
 func (tsp *travellingSalesmanProblem) Init() {
-	parameters := easyga.Parameters{
+	parameters := easyga.GeneticAlgorithmParameters{
 		CrossoverProbability: .8,
 		MutationProbability:  .2,
 		PopulationSize:       20,
@@ -40,13 +39,13 @@ func (tsp *travellingSalesmanProblem) Init() {
 		IterationsLimit:      1000,
 	}
 
-	custom := easyga.CustomFunctions{}
+	custom := easyga.GeneticAlgorithmFunctions{}
 
 	custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
 		// Initialize
 		c.Gene = make([]byte, 0)
 		// Get a array contains the genes which tsp need
-		tspChromosome := rand.Perm(parameters.ChromosomeLength)
+		tspChromosome := easyga.GARand.Perm(parameters.ChromosomeLength)
 		// Append each gene to chromosome
 		for i := range tspChromosome {
 			c.Gene = append(c.Gene, byte(tspChromosome[i]))
@@ -139,7 +138,7 @@ func (tsp *travellingSalesmanProblem) Init() {
 		_, bestFitness := ga.Population.FindBest()
 		maybeBest := float64(-1877.214)
 
-		if bestFitness >= maybeBest || ga.Iteration >= ga.Params.IterationsLimit {
+		if bestFitness >= maybeBest || ga.Iteration >= ga.Parameters.IterationsLimit {
 			return true
 		}
 

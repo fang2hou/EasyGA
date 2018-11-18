@@ -1,47 +1,49 @@
 package easyga
 
-import "math/rand"
-
-type population struct {
+// GeneticAlgorithmPopulation is a slice of Chromosome type array
+type GeneticAlgorithmPopulation struct {
 	Chromosomes []Chromosome
+	Size        int
+	Iteration   int
 }
 
-// getRandomChromosomeIndex is a private method that return a random chromosome index
-func getRandomChromosomeIndex(p *population) int {
-	return rand.Int() % len(p.Chromosomes)
+// GetRandomChromosomeIndex method will return a random chromosome index
+func (gapop *GeneticAlgorithmPopulation) GetRandomChromosomeIndex() int {
+	return GARand.Intn(gapop.Size)
 }
 
 // Init is a method to generate the first iteration
-func (p *population) Init(length int, size int, genotype uint8, initFunc func(c *Chromosome)) {
-	// Initialize population
-	p.Chromosomes = make([]Chromosome, 0)
+func (gapop *GeneticAlgorithmPopulation) Init(length int, size int, genotype int, initFunc func(c *Chromosome)) {
+	// Save size
+	gapop.Size = size
 
 	// Create new individuals
-	for i := 0; i < size; i++ {
+	for i := 0; i < gapop.Size; i++ {
 		// Initialize a new chromosome
 		var tempChromosome Chromosome
 		// Generate gene
+		tempChromosome.Genotype = genotype
 		if initFunc != nil {
 			initFunc(&tempChromosome)
 		} else {
 			tempChromosome.Random(length, genotype)
 		}
 		// Add it into population
-		p.Chromosomes = append(p.Chromosomes, tempChromosome)
+		gapop.Chromosomes = append(gapop.Chromosomes, tempChromosome)
 	}
 }
 
 // FindBest is a method that return the index and fitness of the best one
-func (p *population) FindBest() (bestIndex int, bestFitness float64) {
+func (gapop *GeneticAlgorithmPopulation) FindBest() (bestIndex int, bestFitness float64) {
 	// Assume the first chromosome in population is the best
 	bestIndex = 0
-	bestFitness = p.Chromosomes[0].Fitness
+	bestFitness = gapop.Chromosomes[0].Fitness
 
 	// If the chromosome better than the best one, set it as best
-	for i := range p.Chromosomes {
-		if p.Chromosomes[i].Fitness > bestFitness {
+	for i := 1; i < gapop.Size; i++ {
+		if gapop.Chromosomes[i].Fitness > bestFitness {
 			bestIndex = i
-			bestFitness = p.Chromosomes[i].Fitness
+			bestFitness = gapop.Chromosomes[i].Fitness
 		}
 	}
 

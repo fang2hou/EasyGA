@@ -6,17 +6,14 @@ import (
 
 // Chromosome is a struct that contains everything an individual need.
 type Chromosome struct {
-	Gene    []byte
-	Fitness float64
+	Gene     []byte
+	Fitness  float64
+	Genotype int
 }
 
-func getRandomGenotype(genotype uint8) byte {
-	return byte(rand.Intn(int(genotype)))
-}
-
-// Length method will return the length of chromosome
-func (c *Chromosome) Length() int {
-	return len(c.Gene)
+// GetRandomGenotype method will return a random genotype
+func (c *Chromosome) GetRandomGenotype() byte {
+	return byte(rand.Intn(c.Genotype))
 }
 
 // GetRandomGeneIndex method will return a random index by the length of chromosome
@@ -24,10 +21,15 @@ func (c *Chromosome) GetRandomGeneIndex() int {
 	return rand.Int() % len(c.Gene)
 }
 
+// Length method will return the length of chromosome
+func (c *Chromosome) Length() int {
+	return len(c.Gene)
+}
+
 // Random method will generate individual randomly.
-func (c *Chromosome) Random(length int, genotype uint8) {
+func (c *Chromosome) Random(length int, genotype int) {
 	c.Gene = make([]byte, 0)
 	for i := 0; i < length; i++ {
-		c.Gene = append(c.Gene, getRandomGenotype(genotype))
+		c.Gene = append(c.Gene, c.GetRandomGenotype())
 	}
 }
