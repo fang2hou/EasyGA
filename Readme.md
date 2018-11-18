@@ -4,11 +4,19 @@ Run the code below with terminal program or command prompt.
 ```shell
 go get -u github.com/fang2hou/easyga
 ```
-or you can download the zip file via github.com, then run the scripts inside .idea folder.
+It will install to your `$GOPATH` automatically.
 
 ### Usage
-coming soon.  
-You can check test.go, it's an easy-to-use package.
+Here is no documentation currently.
+
+You can check files in `_examples` folder, it's an easy-to-use package.
+
+### Author
+[Zhou Fang](https://github.com/fang2hou)
+
+[Junjie Xu](https://github.com/junj2ejj)
+
+Feel free to pull request if you want.
 
 ### License
 MIT
