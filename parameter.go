@@ -9,7 +9,7 @@ type GeneticAlgorithmParameters struct {
 	PopulationSize       int
 	ChromosomeLength     int
 	IterationsLimit      int
-	Genotype             int
+	GenotypeNumber       int
 	RandomSeed           int64
 }
 
@@ -24,8 +24,8 @@ func (param *GeneticAlgorithmParameters) check() error {
 	if param.PopulationSize <= 2 {
 		return errors.New("Error: PopulationSize should > 2")
 	}
-	if param.Genotype <= 1 {
-		return errors.New("Error: Genotype should > 1")
+	if param.GenotypeNumber <= 1 {
+		return errors.New("Error: The number of genotype should > 1")
 	}
 	if param.ChromosomeLength <= 0 {
 		return errors.New("Error: ChromosomeLength should > 0")

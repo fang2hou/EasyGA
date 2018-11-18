@@ -31,7 +31,7 @@ func (ga *GeneticAlgorithm) Init(customParameters GeneticAlgorithmParameters, cu
 
 		// Initialize population
 		ga.Population.Iteration = 0
-		ga.Population.Init(ga.Parameters.ChromosomeLength, ga.Parameters.PopulationSize, ga.Parameters.Genotype, ga.Functions.ChromosomeInitFunction)
+		ga.Population.Init(ga.Parameters.ChromosomeLength, ga.Parameters.PopulationSize, ga.Parameters.GenotypeNumber, ga.Functions.ChromosomeInitFunction)
 
 		// Update fitness of first generation
 		ga.updateFitness()
@@ -100,8 +100,8 @@ func (ga *GeneticAlgorithm) crossover(parentsPair [][2]int) {
 		// Crossover with probability
 		if Rand.Float64() < ga.Parameters.CrossoverProbability {
 			child1, child2 = ga.Functions.CrossOverFunction(&parent1, &parent2)
-			child1.Genotype = ga.Parameters.Genotype
-			child2.Genotype = ga.Parameters.Genotype
+			child1.GenotypeNumber = ga.Parameters.GenotypeNumber
+			child2.GenotypeNumber = ga.Parameters.GenotypeNumber
 		} else {
 			child1, child2 = &parent1, &parent2
 		}

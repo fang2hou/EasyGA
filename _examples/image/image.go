@@ -3,11 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/fang2hou/easyga"
 	"image"
 	"image/png"
 	"math"
 	"os"
+
+	"github.com/fang2hou/easyga"
 )
 
 func main() {
@@ -15,11 +16,11 @@ func main() {
 
 	precision := 8 // equal pow2
 
-	parameters := easyga.Parameters{
+	parameters := easyga.GeneticAlgorithmParameters{
 		CrossoverProbability: 0.8,
 		MutationProbability:  .05,
 		PopulationSize:       10,
-		Genotype:             2,
+		GenotypeNumber:       2,
 		ChromosomeLength:     precision * 3,
 		IterationsLimit:      10,
 	}
@@ -35,7 +36,7 @@ func main() {
 	}
 
 	fmt.Println(originalImage)
-	custom := easyga.CustomFunctions{}
+	custom := easyga.GeneticAlgorithmFunctions{}
 
 	//custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
 	//	You can customize your fitness function here
@@ -59,19 +60,19 @@ func main() {
 			if i < parameterBinaryLength/3 {
 				if c.Gene[i] == 1 {
 					noiseAmp = append(noiseAmp, "1")
-				} else if c.Gene[i] == 0{
+				} else if c.Gene[i] == 0 {
 					noiseAmp = append(noiseAmp, "0")
 				}
 			} else if i >= parameterBinaryLength/3 && i < parameterBinaryLength/3*2 {
 				if c.Gene[i] == 1 {
 					noiseFreqRow = append(noiseFreqRow, "1")
-				} else if c.Gene[i] == 0{
+				} else if c.Gene[i] == 0 {
 					noiseFreqRow = append(noiseFreqRow, "0")
 				}
 			} else if i >= parameterBinaryLength/3*2 && i < parameterBinaryLength {
 				if c.Gene[i] == 1 {
 					noiseFreqCol = append(noiseFreqCol, "1")
-				} else if c.Gene[i] == 0{
+				} else if c.Gene[i] == 0 {
 					noiseFreqCol = append(noiseFreqCol, "0")
 				}
 			} else {
@@ -81,8 +82,8 @@ func main() {
 		}
 
 		c.Fitness = imageSimilarity(originalImage, noisyImage, noiseAmp, noiseFreqRow, noiseFreqCol, precision)
-		if ga.Iteration%100 == 0 {
-			outputImage(originalImage, noisyImage, ga.Iteration)
+		if ga.Population.Iteration%100 == 0 {
+			outputImage(originalImage, noisyImage, ga.Population.Iteration)
 		}
 
 	}
@@ -183,17 +184,17 @@ func imageSimilarity(targetImage image.Image, noisyImage image.Image, noiseAmp [
 	for i := 0; i < precision; i++ {
 		if noiseAmp[i] == "1" {
 			NA += math.Pow(2.0, float64(i))
-		} else if noiseAmp[i] == "0"{
+		} else if noiseAmp[i] == "0" {
 		}
 
 		if noiseFreqRow[i] == "1" {
 			NFR += math.Pow(2.0, float64(i))
-		} else if noiseFreqRow[i] == "0"{
+		} else if noiseFreqRow[i] == "0" {
 		}
 
 		if noiseFreqCol[i] == "1" {
 			NFC += math.Pow(2.0, float64(i))
-		} else if noiseFreqCol[i] == "0"{
+		} else if noiseFreqCol[i] == "0" {
 		}
 	}
 	NA = 30.0 / math.Pow(2.0, float64(precision)) * NA

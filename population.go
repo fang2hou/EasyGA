@@ -22,7 +22,7 @@ func (gapop *GeneticAlgorithmPopulation) Init(length int, size int, genotype int
 		// Initialize a new chromosome
 		var tempChromosome Chromosome
 		// Generate gene
-		tempChromosome.Genotype = genotype
+		tempChromosome.GenotypeNumber = genotype
 		if initFunc != nil {
 			initFunc(&tempChromosome)
 		} else {

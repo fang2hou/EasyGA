@@ -62,7 +62,7 @@ func (gafuncs *GeneticAlgorithmFunctions) Init() {
 		gafuncs.CheckStopFunction = func(ga *GeneticAlgorithm) bool {
 			// The maximum sum of the number of genotype
 			_, bestFitness := ga.Population.FindBest()
-			maybeBest := int(ga.Parameters.Genotype-1) * int(ga.Parameters.ChromosomeLength)
+			maybeBest := int(ga.Parameters.GenotypeNumber-1) * int(ga.Parameters.ChromosomeLength)
 
 			if int(bestFitness) >= maybeBest || ga.Population.Iteration >= ga.Parameters.IterationsLimit {
 				return true

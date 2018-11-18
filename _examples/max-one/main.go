@@ -13,10 +13,10 @@ func main() {
 		CrossoverProbability: .9,
 		MutationProbability:  .1,
 		PopulationSize:       10,
-		Genotype:             2,
+		GenotypeNumber:       2,
 		ChromosomeLength:     10,
 		IterationsLimit:      1000,
-		RandomSeed:           42,
+		RandomSeed:           12,
 	}
 
 	custom := easyga.GeneticAlgorithmFunctions{}

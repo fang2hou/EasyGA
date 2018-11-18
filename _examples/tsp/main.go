@@ -34,9 +34,10 @@ func (tsp *travellingSalesmanProblem) Init() {
 		CrossoverProbability: .8,
 		MutationProbability:  .2,
 		PopulationSize:       20,
-		Genotype:             2,
+		GenotypeNumber:       2,
 		ChromosomeLength:     len(tsp.cityLocation),
 		IterationsLimit:      1000,
+		RandomSeed:           42,
 	}
 
 	custom := easyga.GeneticAlgorithmFunctions{}
