@@ -9,7 +9,7 @@ type GeneticAlgorithmPopulation struct {
 
 // GetRandomChromosomeIndex method will return a random chromosome index
 func (gapop *GeneticAlgorithmPopulation) GetRandomChromosomeIndex() int {
-	return GARand.Intn(gapop.Size)
+	return Rand.Intn(gapop.Size)
 }
 
 // Init is a method to generate the first iteration

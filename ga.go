@@ -5,8 +5,8 @@ import (
 	"sync"
 )
 
-// GARand is a pointer to the rand which can be changed outside
-var GARand *rand.Rand
+// Rand is a pointer to the rand which can be changed outside
+var Rand *rand.Rand
 
 // GeneticAlgorithm is a struct that contains everything of genetic algorithm.
 type GeneticAlgorithm struct {
@@ -23,7 +23,7 @@ func (ga *GeneticAlgorithm) Init(customParameters GeneticAlgorithmParameters, cu
 		ga.Parameters = customParameters
 
 		// Initialize Seed of rand
-		GARand = rand.New(rand.NewSource(ga.Parameters.RandomSeed))
+		Rand = rand.New(rand.NewSource(ga.Parameters.RandomSeed))
 
 		// Initialize functions
 		ga.Functions = customFunctions
@@ -43,9 +43,9 @@ func (ga *GeneticAlgorithm) Init(customParameters GeneticAlgorithmParameters, cu
 // Run method will create a loop for find best result.
 func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration int) {
 	for !ga.checkStop() {
-
 		// Selection - Select parents from population
 		parentsPair := ga.selection()
+
 		// Crossover - perform crossover on parents creating population
 		ga.crossover(parentsPair)
 
@@ -98,7 +98,7 @@ func (ga *GeneticAlgorithm) crossover(parentsPair [][2]int) {
 		var child1, child2 *Chromosome
 
 		// Crossover with probability
-		if GARand.Float64() < ga.Parameters.CrossoverProbability {
+		if Rand.Float64() < ga.Parameters.CrossoverProbability {
 			child1, child2 = ga.Functions.CrossOverFunction(&parent1, &parent2)
 			child1.Genotype = ga.Parameters.Genotype
 			child2.Genotype = ga.Parameters.Genotype
@@ -119,7 +119,7 @@ func (ga *GeneticAlgorithm) mutation() {
 
 	for i := 0; i < ga.Population.Size; i++ {
 		// Mutate with probability
-		if GARand.Float64() < ga.Parameters.MutationProbability {
+		if Rand.Float64() < ga.Parameters.MutationProbability {
 			routineWait.Add(1)
 
 			go func(i int, counter *sync.WaitGroup) {

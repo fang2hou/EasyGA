@@ -1,9 +1,5 @@
 package easyga
 
-import (
-	"math/rand"
-)
-
 // Chromosome is a struct that contains everything an individual need.
 type Chromosome struct {
 	Gene     []byte
@@ -13,12 +9,12 @@ type Chromosome struct {
 
 // GetRandomGenotype method will return a random genotype
 func (c *Chromosome) GetRandomGenotype() byte {
-	return byte(rand.Intn(c.Genotype))
+	return byte(Rand.Intn(c.Genotype))
 }
 
 // GetRandomGeneIndex method will return a random index by the length of chromosome
 func (c *Chromosome) GetRandomGeneIndex() int {
-	return rand.Int() % len(c.Gene)
+	return Rand.Int() % len(c.Gene)
 }
 
 // Length method will return the length of chromosome

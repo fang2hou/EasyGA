@@ -45,7 +45,7 @@ func (tsp *travellingSalesmanProblem) Init() {
 		// Initialize
 		c.Gene = make([]byte, 0)
 		// Get a array contains the genes which tsp need
-		tspChromosome := easyga.GARand.Perm(parameters.ChromosomeLength)
+		tspChromosome := easyga.Rand.Perm(parameters.ChromosomeLength)
 		// Append each gene to chromosome
 		for i := range tspChromosome {
 			c.Gene = append(c.Gene, byte(tspChromosome[i]))
@@ -138,7 +138,7 @@ func (tsp *travellingSalesmanProblem) Init() {
 		_, bestFitness := ga.Population.FindBest()
 		maybeBest := float64(-1877.214)
 
-		if bestFitness >= maybeBest || ga.Iteration >= ga.Parameters.IterationsLimit {
+		if bestFitness >= maybeBest || ga.Population.Iteration >= ga.Parameters.IterationsLimit {
 			return true
 		}
 
