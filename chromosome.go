@@ -7,17 +7,17 @@ type Chromosome struct {
 	GenotypeNumber int
 }
 
-// GetRandomGenotype method will return a random genotype
+// GetRandomGenotype method will return a random genotype.
 func (c *Chromosome) GetRandomGenotype() byte {
 	return byte(Rand.Intn(c.GenotypeNumber))
 }
 
-// GetRandomGeneIndex method will return a random index by the length of chromosome
+// GetRandomGeneIndex method will return a random index by the length of chromosome.
 func (c *Chromosome) GetRandomGeneIndex() int {
 	return Rand.Int() % len(c.Gene)
 }
 
-// Length method will return the length of chromosome
+// Length method will return the length of chromosome.
 func (c *Chromosome) Length() int {
 	return len(c.Gene)
 }

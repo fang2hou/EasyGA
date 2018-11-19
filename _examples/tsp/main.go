@@ -19,7 +19,7 @@ type travellingSalesmanProblem struct {
 }
 
 func main() {
-	// Initialize a travelling salesman problem
+	// Initialize a travelling salesman problem.
 	var tsp travellingSalesmanProblem
 	tsp.getCityLocation("tsp.cities.cycle.csv")
 
@@ -45,16 +45,16 @@ func (tsp *travellingSalesmanProblem) Init() {
 	custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
 		// Initialize
 		c.Gene = make([]byte, 0)
-		// Get an array contains the genes which tsp need
+		// Get an array contains the genes which tsp need.
 		tspChromosome := easyga.Rand.Perm(parameters.ChromosomeLength)
-		// Append each gene to the end of chromosome
+		// Append each gene to the end of chromosome.
 		for i := range tspChromosome {
 			c.Gene = append(c.Gene, byte(tspChromosome[i]))
 		}
 	}
 
 	custom.MutateFunction = func(c *easyga.Chromosome) {
-		// Get two different indexes of chromosome
+		// Get two different indexes of chromosome.
 		index1 := c.GetRandomGeneIndex()
 		index2 := c.GetRandomGeneIndex()
 		for index1 == index2 {
@@ -157,7 +157,7 @@ func (tsp *travellingSalesmanProblem) Run() (easyga.Chromosome, float64, int) {
 }
 
 func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *http.Request) {
-	tsp.Init() // If you just want to run once, move tsp.init() to main()
+	tsp.Init() // If you just want to run once, move tsp.init() to main().
 
 	best, bestFit, iteration := tsp.Run()
 
@@ -173,7 +173,7 @@ func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *ht
 		yValue = append(yValue, float64(tsp.cityLocation[best.Gene[i]][1]))
 	}
 
-	// Fix the line between the first city and last city
+	// Fix the line between the first city and last city.
 	xValue = append(xValue, float64(tsp.cityLocation[best.Gene[0]][0]))
 	yValue = append(yValue, float64(tsp.cityLocation[best.Gene[0]][1]))
 
@@ -217,7 +217,7 @@ func (tsp *travellingSalesmanProblem) getCityLocation(fileName string) {
 
 	// Parse data
 	for {
-		// Read a line before get EOF signal
+		// Read a line before get EOF signal.
 		record, err := r.Read()
 		if err == io.EOF {
 			break
@@ -225,7 +225,7 @@ func (tsp *travellingSalesmanProblem) getCityLocation(fileName string) {
 			panic(err)
 		}
 
-		// Add city location to array
+		// Add city location to array.
 		tempCityX, _ := strconv.ParseFloat(record[0], 64)
 		tempCityY, _ := strconv.ParseFloat(record[1], 64)
 		tsp.cityLocation = append(tsp.cityLocation, []float64{tempCityX, tempCityY})

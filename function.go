@@ -1,6 +1,6 @@
 package easyga
 
-// GeneticAlgorithmFunctions is a struct that contains every functions customized.
+// GeneticAlgorithmFunctions is a struct that contains every function customized.
 type GeneticAlgorithmFunctions struct {
 	ChromosomeInitFunction func(c *Chromosome)
 
@@ -12,7 +12,7 @@ type GeneticAlgorithmFunctions struct {
 	CheckStopFunction func(ga *GeneticAlgorithm) bool
 }
 
-// Init method will generate functions when not be initialized.
+// Init method will generate functions if it not be initialized.
 func (gafuncs *GeneticAlgorithmFunctions) Init() {
 	// Mutation
 	if gafuncs.MutateFunction == nil {
@@ -25,7 +25,7 @@ func (gafuncs *GeneticAlgorithmFunctions) Init() {
 	// Fitness
 	if gafuncs.FitnessFunction == nil {
 		gafuncs.FitnessFunction = func(c *Chromosome) {
-			// The sum of the number of genotype
+			// The sum of the number of genotypes
 			c.Fitness = 0
 			for i := range c.Gene {
 				c.Fitness += float64(c.Gene[i])
@@ -60,7 +60,7 @@ func (gafuncs *GeneticAlgorithmFunctions) Init() {
 	// Check stop
 	if gafuncs.CheckStopFunction == nil {
 		gafuncs.CheckStopFunction = func(ga *GeneticAlgorithm) bool {
-			// The maximum sum of the number of genotype
+			// The maximum sum of the number of genotypes
 			_, bestFitness := ga.Population.FindBest()
 			maybeBest := int(ga.Parameters.GenotypeNumber-1) * int(ga.Parameters.ChromosomeLength)
 
@@ -73,7 +73,7 @@ func (gafuncs *GeneticAlgorithmFunctions) Init() {
 	}
 }
 
-// TournamentFunction is the default select method in EasyGA
+// TournamentFunction is the default select method in EasyGA.
 func TournamentFunction(ga *GeneticAlgorithm) (newPopulationIndex []int) {
 	// Competition function
 	findWinner := func(index1 int, index2 int) (winner int) {

@@ -26,4 +26,4 @@ Feel free to pull request if you want.
 
 ### License
 [MIT](LICENSE)  
-A part of structure is inspired by [GAHelloWorld](https://github.com/jsvazic/GAHelloWorld)
+A part of the structure is inspired by [GAHelloWorld](https://github.com/jsvazic/GAHelloWorld)
