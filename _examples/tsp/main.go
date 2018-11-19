@@ -45,16 +45,16 @@ func (tsp *travellingSalesmanProblem) Init() {
 	custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
 		// Initialize
 		c.Gene = make([]byte, 0)
-		// Get a array contains the genes which tsp need
+		// Get an array contains the genes which tsp need
 		tspChromosome := easyga.Rand.Perm(parameters.ChromosomeLength)
-		// Append each gene to chromosome
+		// Append each gene to the end of chromosome
 		for i := range tspChromosome {
 			c.Gene = append(c.Gene, byte(tspChromosome[i]))
 		}
 	}
 
 	custom.MutateFunction = func(c *easyga.Chromosome) {
-		// Get two different index of chromosome
+		// Get two different indexes of chromosome
 		index1 := c.GetRandomGeneIndex()
 		index2 := c.GetRandomGeneIndex()
 		for index1 == index2 {
