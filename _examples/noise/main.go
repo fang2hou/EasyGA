@@ -72,6 +72,8 @@ func (in *imageNoise) init() {
 func (in *imageNoise) totalError(NoiseAmp float64, NoiseFreqRow float64, NoiseFreqCol float64) (fitness float64) {
 	var noise float64
 
+	// Error function assumed
+	// N(row, col) = NoiseAmp×sin([2π×NoiseFreqRow×row]+[2π×NoiseFreqCol×col])
 	for row := 0; row < in.imageGap.yBound; row++ {
 		for col := 0; col < in.imageGap.xBound; col++ {
 			noise = NoiseAmp * math.Sin(2.0*math.Pi*(NoiseFreqRow*float64(row+1)+NoiseFreqCol*float64(col+1)))
