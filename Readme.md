@@ -1,16 +1,17 @@
 # EasyGA
 ![](https://img.shields.io/badge/Go-1.9+-green.svg?longCache=true&style=flat) ![](https://img.shields.io/badge/Ritsumei-Team%203%40Topic%20In%20IT%203-blue.svg?colorA=990000&colorB=444444&longCache=true&style=flat)
-This project is created by team 3 of Ritsumeikan Univ `Topic In IT III` course.
 
-`EasyGA` is a go-lang package that would help you create your own genetic algorithm to solve NP-hard problems.  
+EasyGA is a go-lang package that would help you create your own genetic algorithm to solve NP-hard problems.  
 For now, EasyGA support customization for selection, crossover, mutation and fitness function.
 
+This project is created by team 3 of Ritsumeikan Univ `Topic In IT III` course.
+
 ### Installation
-Run the code below with terminal program or command prompt.
+Like other go package, just run the code below with terminal program or command prompt.
 ```shell
 go get -u github.com/fang2hou/easyga
 ```
-It will install to your `$GOPATH` automatically.
+It will install to your `$GOPATH` in seconds.
 
 ### Usage
 Here is no documentation currently.
@@ -26,4 +27,4 @@ Feel free to pull request if you want.
 ### License
 [MIT](LICENSE)
 
-Inspired by [GAHelloWorld](https://github.com/jsvazic/GAHelloWorld)
+A part of structure is inspired by [GAHelloWorld](https://github.com/jsvazic/GAHelloWorld)
