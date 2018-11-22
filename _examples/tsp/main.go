@@ -16,6 +16,7 @@ import (
 type travellingSalesmanProblem struct {
 	ga           easyga.GeneticAlgorithm
 	cityLocation [][]float64
+	fitnessData         []float64
 }
 
 func main() {
@@ -145,7 +146,10 @@ func (tsp *travellingSalesmanProblem) Init() {
 
 		return false
 	}
-
+	custom.StasticFunction = func(ga *easyga.GeneticAlgorithm) {
+		_, bestFitness := ga.Population.FindBest()
+		tsp.fitnessData = append(tsp.fitnessData, bestFitness)
+	}
 	if err := tsp.ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)
 		return
@@ -164,7 +168,7 @@ func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *ht
 	fmt.Println("Best gene is", best)
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
-
+	drawFitnessChart(tsp.fitnessData)
 	xValue := make([]float64, 0)
 	yValue := make([]float64, 0)
 

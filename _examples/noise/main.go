@@ -9,6 +9,7 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/fang2hou/easyga"
 )
@@ -66,7 +67,7 @@ func main() {
 	fmt.Println("Best gene is", NoiseAmp, NoiseFreqRow, NoiseFreqCol)
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
-	fmt.Println(findNoise.fitnessData)
+	//fmt.Println(findNoise.fitnessData)
 	drawFitnessChart(findNoise.fitnessData)
 }
 
@@ -81,8 +82,8 @@ func (in *imageNoise) init() {
 		PopulationSize:       40,
 		GenotypeNumber:       2,
 		ChromosomeLength:     24,
-		IterationsLimit:      100,
-		RandomSeed:           21,
+		IterationsLimit:      1001,
+		RandomSeed:           time.Now().UnixNano(),
 	}
 
 	custom := easyga.GeneticAlgorithmFunctions{
@@ -90,7 +91,7 @@ func (in *imageNoise) init() {
 			NoiseAmp, NoiseFreqRow, NoiseFreqCol := genotypeToPhenotype(c.Gene)
 			// Use absolute value to comparison.
 			c.Fitness = -in.totalError(NoiseAmp, NoiseFreqRow, NoiseFreqCol)
-			if in.ga.Population.Iteration%100 == 0 && in.ga.Population.Iteration > 1 {
+			if in.ga.Population.Iteration%200 == 0 && in.ga.Population.Iteration > 1 {
 				in.imageOutput(NoiseAmp, NoiseFreqRow, NoiseFreqCol)
 			}
 			return
