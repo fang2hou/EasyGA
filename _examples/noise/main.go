@@ -19,10 +19,9 @@ type imageData struct {
 }
 
 type imageNoise struct {
-	ga          easyga.GeneticAlgorithm
-	original    imageData
-	corrupted   imageData
-	fitnessData []float64
+	ga                  easyga.GeneticAlgorithm
+	original, corrupted imageData
+	fitnessData         []float64
 }
 
 func main() {
