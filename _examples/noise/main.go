@@ -67,6 +67,7 @@ func main() {
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
 	fmt.Println(findNoise.fitnessData)
+	drawFitnessChart(findNoise.fitnessData)
 }
 
 func (in *imageNoise) init() {
