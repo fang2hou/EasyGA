@@ -10,7 +10,7 @@ type GeneticAlgorithmFunctions struct {
 	FitnessFunction   func(c *Chromosome)
 
 	CheckStopFunction func(ga *GeneticAlgorithm) bool
-	StasticFunction   func(ga *GeneticAlgorithm)
+	StatisticFunction func(ga *GeneticAlgorithm)
 }
 
 // Init method will generate functions if it not be initialized.
@@ -73,8 +73,9 @@ func (gafuncs *GeneticAlgorithmFunctions) Init() {
 		}
 	}
 
-	if gafuncs.StasticFunction == nil {
-		gafuncs.StasticFunction = func(ga *GeneticAlgorithm) {
+	// Statistic function
+	if gafuncs.StatisticFunction == nil {
+		gafuncs.StatisticFunction = func(ga *GeneticAlgorithm) {
 			return
 		}
 	}
