@@ -10,6 +10,7 @@ type GeneticAlgorithmFunctions struct {
 	FitnessFunction   func(c *Chromosome)
 
 	CheckStopFunction func(ga *GeneticAlgorithm) bool
+	StasticFunction   func(ga *GeneticAlgorithm)
 }
 
 // Init method will generate functions if it not be initialized.
@@ -71,6 +72,13 @@ func (gafuncs *GeneticAlgorithmFunctions) Init() {
 			return false
 		}
 	}
+
+	if gafuncs.StasticFunction == nil {
+		gafuncs.StasticFunction = func(ga *GeneticAlgorithm) {
+			return
+		}
+	}
+
 }
 
 // TournamentFunction is the default select method in EasyGA.

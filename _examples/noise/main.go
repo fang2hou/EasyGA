@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/fang2hou/easyga"
 	"image"
 	"image/color"
 	"image/png"
@@ -10,6 +9,8 @@ import (
 	"math"
 	"os"
 	"strconv"
+
+	"github.com/fang2hou/easyga"
 )
 
 type imageData struct {
@@ -18,9 +19,10 @@ type imageData struct {
 }
 
 type imageNoise struct {
-	ga        easyga.GeneticAlgorithm
-	original  imageData
-	corrupted imageData
+	ga          easyga.GeneticAlgorithm
+	original    imageData
+	corrupted   imageData
+	fitnessData []float64
 }
 
 func main() {
@@ -31,7 +33,7 @@ func main() {
 
 	// Corrupted
 	findNoise.corrupted = readFromFile("noise2.png")
-	 //findNoise.corrupted = readFromFile("noise.png") // Test: 60.0 0.01 0.01
+	//findNoise.corrupted = readFromFile("noise.png") // Test: 60.0 0.01 0.01
 
 	// Confirm the size of two pictures is same.
 	if findNoise.corrupted.width != findNoise.original.width ||
@@ -65,6 +67,7 @@ func main() {
 	fmt.Println("Best gene is", NoiseAmp, NoiseFreqRow, NoiseFreqCol)
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
+	fmt.Println(findNoise.fitnessData)
 }
 
 func (in *imageNoise) init() {
@@ -78,7 +81,7 @@ func (in *imageNoise) init() {
 		PopulationSize:       40,
 		GenotypeNumber:       2,
 		ChromosomeLength:     24,
-		IterationsLimit:      3000,
+		IterationsLimit:      100,
 		RandomSeed:           21,
 	}
 
@@ -87,7 +90,7 @@ func (in *imageNoise) init() {
 			NoiseAmp, NoiseFreqRow, NoiseFreqCol := genotypeToPhenotype(c.Gene)
 			// Use absolute value to comparison.
 			c.Fitness = -in.totalError(NoiseAmp, NoiseFreqRow, NoiseFreqCol)
-			if in.ga.Population.Iteration % 100 == 0 && in.ga.Population.Iteration > 1{
+			if in.ga.Population.Iteration%100 == 0 && in.ga.Population.Iteration > 1 {
 				in.imageOutput(NoiseAmp, NoiseFreqRow, NoiseFreqCol)
 			}
 			return
@@ -98,6 +101,10 @@ func (in *imageNoise) init() {
 			}
 
 			return false
+		},
+		StasticFunction: func(ga *easyga.GeneticAlgorithm) {
+			_, bestFitness := ga.Population.FindBest()
+			in.fitnessData = append(in.fitnessData, bestFitness)
 		},
 	}
 
@@ -204,10 +211,10 @@ func (in *imageNoise) totalError(NoiseAmp float64, NoiseFreqRow float64, NoiseFr
 	return
 }
 
-func (in *imageNoise)imageOutput(NoiseAmp float64, NoiseFreqRow float64, NoiseFreqCol float64){
+func (in *imageNoise) imageOutput(NoiseAmp float64, NoiseFreqRow float64, NoiseFreqCol float64) {
 	//scale of pixel's brightness is 0-255
-	filePath := "output"+strconv.Itoa(in.ga.Population.Iteration)+".png"
-	imageArray := make([][]uint8,0)
+	filePath := "output" + strconv.Itoa(in.ga.Population.Iteration) + ".png"
+	imageArray := make([][]uint8, 0)
 	for row := 0; row < in.original.height; row++ {
 		tempLine := make([]uint8, 0)
 		for col := 0; col < in.original.width; col++ {
@@ -224,7 +231,7 @@ func (in *imageNoise)imageOutput(NoiseAmp float64, NoiseFreqRow float64, NoiseFr
 		imageArray = append(imageArray, tempLine)
 	}
 
-	outputImage := image.NewRGBA(image.Rect(0, 0,in.original.width, in.original.height))
+	outputImage := image.NewRGBA(image.Rect(0, 0, in.original.width, in.original.height))
 
 	for i := 0; i < in.original.height; i++ {
 		for j := 0; j < in.original.width; j++ {
@@ -236,7 +243,5 @@ func (in *imageNoise)imageOutput(NoiseAmp float64, NoiseFreqRow float64, NoiseFr
 	defer outFile.Close()
 
 	png.Encode(outFile, outputImage)
-
-
 
 }

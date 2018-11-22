@@ -55,6 +55,8 @@ func (ga *GeneticAlgorithm) Run() (best Chromosome, fitness float64, iteration i
 		// Update fitness
 		ga.updateFitness()
 
+		ga.stastic()
+
 		// Update iteration
 		ga.Population.Iteration++
 	}
@@ -149,4 +151,8 @@ func (ga *GeneticAlgorithm) updateFitness() {
 
 func (ga *GeneticAlgorithm) checkStop() bool {
 	return ga.Functions.CheckStopFunction(ga)
+}
+
+func (ga *GeneticAlgorithm) stastic() {
+	ga.Functions.StasticFunction(ga)
 }
