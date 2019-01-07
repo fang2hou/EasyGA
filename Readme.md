@@ -7,11 +7,26 @@ For now, EasyGA support customization for selection, crossover, mutation and fit
 This project is created by team 3 of Ritsumeikan Univ Topic In IT III course.
 
 ### Installation
+## Use as Module (Go 1.11+)
+Initialize the project with vgo.
+```shell
+go mod init
+```
+Add `import` in you code.
+```go
+import github.com/fang2hou/easyga
+```
+Build once, go-tools will download easyga automatically.
+```shell
+go build
+```
+
+## Classic
 Same as other go package, just run the code below with terminal program or command prompt.
 ```shell
 go get -u github.com/fang2hou/easyga
 ```
-Go-tools will install EasyGA to your `$GOPATH` in seconds.
+Go-tools will help you to install EasyGA to your `$GOPATH` in seconds.
 
 ### Usage
 Here is no documentation currently.

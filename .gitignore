@@ -17,3 +17,6 @@
 # Project configuration
 .idea/*
 .vscode/*
+
+# Go mod
+go.sum
