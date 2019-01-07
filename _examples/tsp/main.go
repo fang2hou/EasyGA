@@ -16,7 +16,7 @@ import (
 type travellingSalesmanProblem struct {
 	ga           easyga.GeneticAlgorithm
 	cityLocation [][]float64
-	fitnessData         []float64
+	fitnessData  []float64
 }
 
 func main() {
@@ -41,115 +41,112 @@ func (tsp *travellingSalesmanProblem) Init() {
 		RandomSeed:           42,
 	}
 
-	custom := easyga.GeneticAlgorithmFunctions{}
+	custom := easyga.GeneticAlgorithmFunctions{
+		ChromosomeInitFunction: func(c *easyga.Chromosome) {
+			// Initialize
+			c.Gene = make([]byte, 0)
+			// Get an array contains the genes which tsp need.
+			tspChromosome := easyga.Rand.Perm(parameters.ChromosomeLength)
+			// Append each gene to the end of chromosome.
+			for i := range tspChromosome {
+				c.Gene = append(c.Gene, byte(tspChromosome[i]))
+			}
+		},
+		MutateFunction: func(c *easyga.Chromosome) {
+			// Get two different indexes of chromosome.
+			index1 := c.GetRandomGeneIndex()
+			index2 := c.GetRandomGeneIndex()
+			for index1 == index2 {
+				index2 = c.GetRandomGeneIndex()
+			}
+			// Switch value
+			c.Gene[index1], c.Gene[index2] = c.Gene[index2], c.Gene[index1]
+		},
+		FitnessFunction: func(c *easyga.Chromosome) {
+			// Initialize
+			c.Fitness = 0
 
-	custom.ChromosomeInitFunction = func(c *easyga.Chromosome) {
-		// Initialize
-		c.Gene = make([]byte, 0)
-		// Get an array contains the genes which tsp need.
-		tspChromosome := easyga.Rand.Perm(parameters.ChromosomeLength)
-		// Append each gene to the end of chromosome.
-		for i := range tspChromosome {
-			c.Gene = append(c.Gene, byte(tspChromosome[i]))
-		}
-	}
+			// Be a travelling salesman :(
+			for geneIndex := range c.Gene {
+				// Get next city index from gene
+				cityIndex := int(c.Gene[geneIndex])
+				nextCityIndex := int(c.Gene[(geneIndex+1)%len(c.Gene)])
+				// Calculate distance using pythagorean theorem
+				distanceX := tsp.cityLocation[nextCityIndex][0] - tsp.cityLocation[cityIndex][0]
+				distanceY := tsp.cityLocation[nextCityIndex][1] - tsp.cityLocation[cityIndex][1]
+				distance := math.Sqrt(distanceX*distanceX + distanceY*distanceY)
+				// Update fitness
+				c.Fitness -= distance
+			}
+		},
+		CrossOverFunction: func(parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
+			// Find separate part
+			crossoverStart := parameters.ChromosomeLength / 3
+			if parameters.ChromosomeLength%3 != 0 {
+				crossoverStart++
+			}
+			crossoverEnd := crossoverStart * 2
 
-	custom.MutateFunction = func(c *easyga.Chromosome) {
-		// Get two different indexes of chromosome.
-		index1 := c.GetRandomGeneIndex()
-		index2 := c.GetRandomGeneIndex()
-		for index1 == index2 {
-			index2 = c.GetRandomGeneIndex()
-		}
-		// Switch value
-		c.Gene[index1], c.Gene[index2] = c.Gene[index2], c.Gene[index1]
-	}
-
-	custom.FitnessFunction = func(c *easyga.Chromosome) {
-		// Initialize
-		c.Fitness = 0
-
-		// Be a travelling salesman :(
-		for geneIndex := range c.Gene {
-			// Get next city index from gene
-			cityIndex := int(c.Gene[geneIndex])
-			nextCityIndex := int(c.Gene[(geneIndex+1)%len(c.Gene)])
-			// Calculate distance using pythagorean theorem
-			distanceX := tsp.cityLocation[nextCityIndex][0] - tsp.cityLocation[cityIndex][0]
-			distanceY := tsp.cityLocation[nextCityIndex][1] - tsp.cityLocation[cityIndex][1]
-			distance := math.Sqrt(distanceX*distanceX + distanceY*distanceY)
-			// Update fitness
-			c.Fitness -= distance
-		}
-	}
-
-	custom.CrossOverFunction = func(parent1, parent2 *easyga.Chromosome) (child1, child2 *easyga.Chromosome) {
-		// Find separate part
-		crossoverStart := parameters.ChromosomeLength / 3
-		if parameters.ChromosomeLength%3 != 0 {
-			crossoverStart++
-		}
-		crossoverEnd := crossoverStart * 2
-
-		// child 1
-		child1 = &easyga.Chromosome{Gene: make([]byte, 0)}
-		crossoverPart := parent2.Gene[crossoverStart:crossoverEnd]
-		copyPart := make([]byte, 0)
-		for parentIndex := range parent1.Gene {
-			isEqual := false
-			for skipCopyIndex := range crossoverPart {
-				if parent1.Gene[parentIndex] == crossoverPart[skipCopyIndex] {
-					isEqual = true
-					break
+			// child 1
+			child1 = &easyga.Chromosome{Gene: make([]byte, 0)}
+			crossoverPart := parent2.Gene[crossoverStart:crossoverEnd]
+			copyPart := make([]byte, 0)
+			for parentIndex := range parent1.Gene {
+				isEqual := false
+				for skipCopyIndex := range crossoverPart {
+					if parent1.Gene[parentIndex] == crossoverPart[skipCopyIndex] {
+						isEqual = true
+						break
+					}
+				}
+				if !isEqual {
+					copyPart = append(copyPart, parent1.Gene[parentIndex])
 				}
 			}
-			if !isEqual {
-				copyPart = append(copyPart, parent1.Gene[parentIndex])
-			}
-		}
 
-		child1.Gene = append(child1.Gene, copyPart[0:crossoverStart]...)
-		child1.Gene = append(child1.Gene, crossoverPart...)
-		child1.Gene = append(child1.Gene, copyPart[crossoverStart:]...)
+			child1.Gene = append(child1.Gene, copyPart[0:crossoverStart]...)
+			child1.Gene = append(child1.Gene, crossoverPart...)
+			child1.Gene = append(child1.Gene, copyPart[crossoverStart:]...)
 
-		// child 2
-		child2 = &easyga.Chromosome{Gene: make([]byte, 0)}
-		crossoverPart = parent1.Gene[crossoverStart:crossoverEnd]
-		copyPart = make([]byte, 0)
-		for parentIndex := range parent2.Gene {
-			isEqual := false
-			for skipCopyIndex := range crossoverPart {
-				if parent2.Gene[parentIndex] == crossoverPart[skipCopyIndex] {
-					isEqual = true
-					break
+			// child 2
+			child2 = &easyga.Chromosome{Gene: make([]byte, 0)}
+			crossoverPart = parent1.Gene[crossoverStart:crossoverEnd]
+			copyPart = make([]byte, 0)
+			for parentIndex := range parent2.Gene {
+				isEqual := false
+				for skipCopyIndex := range crossoverPart {
+					if parent2.Gene[parentIndex] == crossoverPart[skipCopyIndex] {
+						isEqual = true
+						break
+					}
+				}
+				if !isEqual {
+					copyPart = append(copyPart, parent2.Gene[parentIndex])
 				}
 			}
-			if !isEqual {
-				copyPart = append(copyPart, parent2.Gene[parentIndex])
+
+			child2.Gene = append(child2.Gene, copyPart[0:crossoverStart]...)
+			child2.Gene = append(child2.Gene, crossoverPart...)
+			child2.Gene = append(child2.Gene, copyPart[crossoverStart:]...)
+
+			return
+		},
+		CheckStopFunction: func(ga *easyga.GeneticAlgorithm) bool {
+			_, bestFitness := ga.Population.FindBest()
+			maybeBest := float64(-1877.214)
+
+			if bestFitness >= maybeBest || ga.Population.Iteration >= ga.Parameters.IterationsLimit {
+				return true
 			}
-		}
 
-		child2.Gene = append(child2.Gene, copyPart[0:crossoverStart]...)
-		child2.Gene = append(child2.Gene, crossoverPart...)
-		child2.Gene = append(child2.Gene, copyPart[crossoverStart:]...)
-
-		return
+			return false
+		},
+		StatisticFunction: func(ga *easyga.GeneticAlgorithm) {
+			_, bestFitness := ga.Population.FindBest()
+			tsp.fitnessData = append(tsp.fitnessData, bestFitness)
+		},
 	}
 
-	custom.CheckStopFunction = func(ga *easyga.GeneticAlgorithm) bool {
-		_, bestFitness := ga.Population.FindBest()
-		maybeBest := float64(-1877.214)
-
-		if bestFitness >= maybeBest || ga.Population.Iteration >= ga.Parameters.IterationsLimit {
-			return true
-		}
-
-		return false
-	}
-	custom.StasticFunction = func(ga *easyga.GeneticAlgorithm) {
-		_, bestFitness := ga.Population.FindBest()
-		tsp.fitnessData = append(tsp.fitnessData, bestFitness)
-	}
 	if err := tsp.ga.Init(parameters, custom); err != nil {
 		fmt.Println(err)
 		return
@@ -168,7 +165,9 @@ func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *ht
 	fmt.Println("Best gene is", best)
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
+
 	drawFitnessChart(tsp.fitnessData)
+
 	xValue := make([]float64, 0)
 	yValue := make([]float64, 0)
 
