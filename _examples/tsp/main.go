@@ -34,6 +34,7 @@ func (tsp *travellingSalesmanProblem) Init() {
 		ChromosomeLength:     len(tsp.cityLocation),
 		IterationsLimit:      1000,
 		RandomSeed:           22,
+		UseRoutine:           false,
 	}
 
 	custom := easyga.GeneticAlgorithmFunctions{

@@ -126,8 +126,8 @@ func (ga *GeneticAlgorithm) mutation() {
 			if ga.Parameters.UseRoutine {
 				routineWait.Add(1)
 
-				go func(i int, counter *sync.WaitGroup) {
-					ga.Functions.MutateFunction(&ga.Population.Chromosomes[i])
+				go func(index int, counter *sync.WaitGroup) {
+					ga.Functions.MutateFunction(&ga.Population.Chromosomes[index])
 					counter.Done()
 				}(i, &routineWait)
 			} else {
@@ -151,7 +151,7 @@ func (ga *GeneticAlgorithm) updateFitness() {
 				counter.Done()
 			}(i, &routineWait)
 		} else {
-			ga.Functions.FitnessFunction(&ga.Population.Chromosomes[index])
+			ga.Functions.FitnessFunction(&ga.Population.Chromosomes[i])
 		}
 	}
 
