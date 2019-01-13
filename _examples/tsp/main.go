@@ -27,13 +27,13 @@ func main() {
 
 func (tsp *travellingSalesmanProblem) Init() {
 	parameters := easyga.GeneticAlgorithmParameters{
-		CrossoverProbability: .8,
-		MutationProbability:  .2,
-		PopulationSize:       300,
+		CrossoverProbability: .9,
+		MutationProbability:  .35,
+		PopulationSize:       2000,
 		GenotypeNumber:       2,
 		ChromosomeLength:     len(tsp.cityLocation),
-		IterationsLimit:      1000,
-		RandomSeed:           22,
+		IterationsLimit:      30000,
+		RandomSeed:           42,
 		UseRoutine:           false,
 	}
 

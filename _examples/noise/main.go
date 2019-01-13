@@ -57,7 +57,7 @@ func main() {
 	// Print out results
 	NoiseAmp, NoiseFreqRow, NoiseFreqCol := genotypeToPhenotype(best.Gene)
 	fmt.Println("Best gene is", NoiseAmp, NoiseFreqRow, NoiseFreqCol)
-	fmt.Println("Best fitness is", bestFit)
+	fmt.Println("Best fitness is ", bestFit/(512*512))
 	fmt.Println("Find it in", iteration, "generation.")
 
 	drawFitnessChart(findNoise.fitnessData)
@@ -71,11 +71,12 @@ func (in *imageNoise) init() {
 	parameters := easyga.GeneticAlgorithmParameters{
 		CrossoverProbability: .9,
 		MutationProbability:  .1,
-		PopulationSize:       40,
+		PopulationSize:       200,
 		GenotypeNumber:       2,
 		ChromosomeLength:     24,
-		IterationsLimit:      100,
+		IterationsLimit:      60,
 		RandomSeed:           time.Now().UnixNano(),
+		UseRoutine:           false,
 	}
 
 	custom := easyga.GeneticAlgorithmFunctions{
@@ -96,9 +97,9 @@ func (in *imageNoise) init() {
 		StatisticFunction: func(ga *easyga.GeneticAlgorithm) {
 			bestIndex, bestFitness := ga.Population.FindBest()
 			in.fitnessData = append(in.fitnessData, bestFitness)
-			if in.ga.Population.Iteration%100 == 0 && in.ga.Population.Iteration > 1 {
+			if in.ga.Population.Iteration%10 == 0 && in.ga.Population.Iteration > 1 {
 				NoiseAmp, NoiseFreqRow, NoiseFreqCol := genotypeToPhenotype(ga.Population.Chromosomes[bestIndex].Gene)
-				in.outputImageWithNoiseCalculated(NoiseAmp, NoiseFreqRow, NoiseFreqCol)
+				in.outputOriginalImageWithNoiseCalculated(NoiseAmp, NoiseFreqRow, NoiseFreqCol)
 			}
 		},
 	}
@@ -252,6 +253,55 @@ func (in *imageNoise) outputImageWithNoiseCalculated(NoiseAmp float64, NoiseFreq
 	// Convert grayscale to RGBA
 	for row := 0; row < in.original.height; row++ {
 		for col := 0; col < in.original.width; col++ {
+			outputImage.SetRGBA(col, row, color.RGBA{outputImageData[row][col], outputImageData[row][col], outputImageData[row][col], 255})
+		}
+	}
+
+	// Encode
+	png.Encode(outputFile, outputImage)
+}
+
+func (in *imageNoise) outputOriginalImageWithNoiseCalculated(NoiseAmp float64, NoiseFreqRow float64, NoiseFreqCol float64) {
+	filePath := "Original_" + strconv.Itoa(in.ga.Population.Iteration) + ".png"
+
+	// Open output image file
+	outputFile, err := os.Create(filePath)
+	defer outputFile.Close()
+
+	if err != nil {
+		fmt.Println("An error occurred when program try to read/create the output image!")
+		return
+	}
+
+	// Create a new image
+	outputImage := image.NewRGBA(image.Rect(0, 0, in.corrupted.width, in.corrupted.height))
+	outputImageData := make([][]uint8, 0)
+
+	// Calculation
+	for row := 0; row < in.corrupted.height; row++ {
+		tempLine := make([]uint8, 0)
+		for col := 0; col < in.corrupted.width; col++ {
+			newBrightness := float64(in.corrupted.brightness[row][col]) -
+				NoiseAmp*math.Sin(2.0*math.Pi*(NoiseFreqRow*float64(row+1)+NoiseFreqCol*float64(col+1)))
+			// Round
+			newBrightness = math.Floor(newBrightness + 0.5)
+
+			// Fix the new brightness over 255 or below 0.
+			if newBrightness < 0 {
+				newBrightness = 0.
+			} else if newBrightness > 255 {
+				newBrightness = 255.
+			}
+
+			// Corrupted - NoiseGA
+			tempLine = append(tempLine, uint8(newBrightness))
+		}
+		outputImageData = append(outputImageData, tempLine)
+	}
+
+	// Convert grayscale to RGBA
+	for row := 0; row < in.corrupted.height; row++ {
+		for col := 0; col < in.corrupted.width; col++ {
 			outputImage.SetRGBA(col, row, color.RGBA{outputImageData[row][col], outputImageData[row][col], outputImageData[row][col], 255})
 		}
 	}
