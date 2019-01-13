@@ -123,12 +123,16 @@ func (ga *GeneticAlgorithm) mutation() {
 	for i := 0; i < ga.Population.Size; i++ {
 		// Mutate with probability
 		if Rand.Float64() < ga.Parameters.MutationProbability {
-			routineWait.Add(1)
+			if ga.Parameters.UseRoutine {
+				routineWait.Add(1)
 
-			go func(i int, counter *sync.WaitGroup) {
+				go func(i int, counter *sync.WaitGroup) {
+					ga.Functions.MutateFunction(&ga.Population.Chromosomes[i])
+					counter.Done()
+				}(i, &routineWait)
+			} else {
 				ga.Functions.MutateFunction(&ga.Population.Chromosomes[i])
-				counter.Done()
-			}(i, &routineWait)
+			}
 		}
 	}
 
@@ -139,12 +143,16 @@ func (ga *GeneticAlgorithm) updateFitness() {
 	var routineWait sync.WaitGroup
 
 	for i := 0; i < ga.Population.Size; i++ {
-		routineWait.Add(1)
+		if ga.Parameters.UseRoutine {
+			routineWait.Add(1)
 
-		go func(index int, counter *sync.WaitGroup) {
+			go func(index int, counter *sync.WaitGroup) {
+				ga.Functions.FitnessFunction(&ga.Population.Chromosomes[index])
+				counter.Done()
+			}(i, &routineWait)
+		} else {
 			ga.Functions.FitnessFunction(&ga.Population.Chromosomes[index])
-			counter.Done()
-		}(i, &routineWait)
+		}
 	}
 
 	routineWait.Wait()

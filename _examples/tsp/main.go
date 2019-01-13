@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"net/http"
 	"os"
 	"strconv"
 
@@ -22,23 +21,19 @@ type travellingSalesmanProblem struct {
 func main() {
 	// Initialize a travelling salesman problem.
 	var tsp travellingSalesmanProblem
-	tsp.getCityLocation("tsp.cities.cycle.csv")
-
-	// Start server
-	fmt.Println("Server: http://localhost:8182/")
-	http.HandleFunc("/", tsp.DrawChart)
-	http.ListenAndServe(":8182", nil)
+	tsp.getCityLocation("tsp.cities.random.csv")
+	tsp.DrawChart()
 }
 
 func (tsp *travellingSalesmanProblem) Init() {
 	parameters := easyga.GeneticAlgorithmParameters{
 		CrossoverProbability: .8,
 		MutationProbability:  .2,
-		PopulationSize:       20,
+		PopulationSize:       300,
 		GenotypeNumber:       2,
 		ChromosomeLength:     len(tsp.cityLocation),
 		IterationsLimit:      1000,
-		RandomSeed:           42,
+		RandomSeed:           22,
 	}
 
 	custom := easyga.GeneticAlgorithmFunctions{
@@ -133,12 +128,11 @@ func (tsp *travellingSalesmanProblem) Init() {
 		},
 		CheckStopFunction: func(ga *easyga.GeneticAlgorithm) bool {
 			_, bestFitness := ga.Population.FindBest()
-			maybeBest := float64(-1877.214)
+			maybeBest := float64(-5420)
 
 			if bestFitness >= maybeBest || ga.Population.Iteration >= ga.Parameters.IterationsLimit {
 				return true
 			}
-
 			return false
 		},
 		StatisticFunction: func(ga *easyga.GeneticAlgorithm) {
@@ -157,7 +151,37 @@ func (tsp *travellingSalesmanProblem) Run() (easyga.Chromosome, float64, int) {
 	return tsp.ga.Run()
 }
 
-func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *http.Request) {
+func (tsp *travellingSalesmanProblem) getCityLocation(fileName string) {
+	// Open file
+	file, err := os.Open(fileName)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer file.Close()
+
+	// Create CSV Reader
+	r := csv.NewReader(file)
+	r.Comment = []rune("#")[0]
+
+	// Parse data
+	for {
+		// Read a line before get EOF signal.
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			panic(err)
+		}
+
+		// Add city location to array.
+		tempCityX, _ := strconv.ParseFloat(record[0], 64)
+		tempCityY, _ := strconv.ParseFloat(record[1], 64)
+		tsp.cityLocation = append(tsp.cityLocation, []float64{tempCityX, tempCityY})
+	}
+}
+
+func (tsp *travellingSalesmanProblem) DrawChart() {
 	tsp.Init() // If you just want to run once, move tsp.init() to main().
 
 	best, bestFit, iteration := tsp.Run()
@@ -165,8 +189,6 @@ func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *ht
 	fmt.Println("Best gene is", best)
 	fmt.Println("Best fitness is", bestFit)
 	fmt.Println("Find it in", iteration, "generation.")
-
-	drawFitnessChart(tsp.fitnessData)
 
 	xValue := make([]float64, 0)
 	yValue := make([]float64, 0)
@@ -198,39 +220,10 @@ func (tsp *travellingSalesmanProblem) DrawChart(res http.ResponseWriter, req *ht
 		Series: []chart.Series{tspSeries},
 	}
 
-	res.Header().Set("Content-Type", chart.ContentTypePNG)
-	err := graph.Render(chart.PNG, res)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-}
+	filePath := "stat.png"
+	outFile, _ := os.Create(filePath)
 
-func (tsp *travellingSalesmanProblem) getCityLocation(fileName string) {
-	// Open file
-	file, err := os.Open(fileName)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	defer file.Close()
+	defer outFile.Close()
 
-	// Create CSV Reader
-	r := csv.NewReader(file)
-	r.Comment = []rune("#")[0]
-
-	// Parse data
-	for {
-		// Read a line before get EOF signal.
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			panic(err)
-		}
-
-		// Add city location to array.
-		tempCityX, _ := strconv.ParseFloat(record[0], 64)
-		tempCityY, _ := strconv.ParseFloat(record[1], 64)
-		tsp.cityLocation = append(tsp.cityLocation, []float64{tempCityX, tempCityY})
-	}
+	graph.Render(chart.PNG, outFile)
 }

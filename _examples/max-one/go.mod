@@ -1,3 +1,3 @@
-module github.com/fang2hou/easyga/_examples/max-one
+module max-one
 
-require github.com/fang2hou/easyga v0.4.0 // indirect
+require github.com/fang2hou/easyga v0.4.0

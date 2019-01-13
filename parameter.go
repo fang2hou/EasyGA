@@ -11,6 +11,7 @@ type GeneticAlgorithmParameters struct {
 	IterationsLimit      int
 	GenotypeNumber       int
 	RandomSeed           int64
+	UseRoutine           bool
 }
 
 // check method will return error when the given parameters is risky.
